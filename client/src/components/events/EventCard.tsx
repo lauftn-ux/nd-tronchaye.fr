@@ -47,11 +47,12 @@ export default function EventCard({ event }: EventCardProps) {
           <span className="text-xs text-gray-600">
             <Clock className="inline mr-1 h-3 w-3" /> {time}
           </span>
-          <Link href={`/events/${id}`}>
-            <a className="text-secondary hover:text-primary transition-colors text-sm font-semibold">
-              {t('common.details')}
-            </a>
-          </Link>
+          <div 
+            className="text-secondary hover:text-primary transition-colors text-sm font-semibold cursor-pointer"
+            onClick={() => window.location.href = `/events/${id}`}
+          >
+            {t('common.details')}
+          </div>
         </div>
       </div>
     </div>
