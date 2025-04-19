@@ -24,11 +24,12 @@ function SacramentCard({ icon, title, description, action, link, image }: Sacram
         <p className="text-sm mb-4">
           {description}
         </p>
-        <Link href={link}>
-          <a className="text-secondary hover:text-primary transition-colors text-sm font-semibold flex items-center">
-            {action} <span className="ml-1">→</span>
-          </a>
-        </Link>
+        <div 
+          className="text-secondary hover:text-primary transition-colors text-sm font-semibold flex items-center cursor-pointer"
+          onClick={() => window.location.href = link}
+        >
+          {action} <span className="ml-1">→</span>
+        </div>
       </div>
     </div>
   );

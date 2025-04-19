@@ -8,7 +8,6 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import Home from "@/pages/Home";
 import EventDetails from "@/pages/EventDetails";
-import Calendar from "@/pages/Calendar";
 import { useTranslation } from "react-i18next";
 import { useEffect } from "react";
 import { useLanguage } from "./context/LanguageContext";
@@ -18,7 +17,6 @@ function Router() {
     <Switch>
       <Route path="/" component={Home} />
       <Route path="/events/:id" component={EventDetails} />
-      <Route path="/calendar" component={Calendar} />
       <Route component={NotFound} />
     </Switch>
   );

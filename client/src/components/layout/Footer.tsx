@@ -31,15 +31,15 @@ export default function Footer() {
             <h3 className="font-cormorant text-xl font-semibold mb-2">Notre Dame de la Tronchaye</h3>
             <p className="text-sm text-gray-300 mb-4">Sanctuaire marial au cœur de la Bretagne historique.</p>
             <div className="flex space-x-4">
-              <a href="#" className="text-white hover:text-accent transition-colors">
+              <span className="text-white hover:text-accent transition-colors cursor-pointer">
                 <Facebook size={18} />
-              </a>
-              <a href="#" className="text-white hover:text-accent transition-colors">
+              </span>
+              <span className="text-white hover:text-accent transition-colors cursor-pointer">
                 <Instagram size={18} />
-              </a>
-              <a href="#" className="text-white hover:text-accent transition-colors">
+              </span>
+              <span className="text-white hover:text-accent transition-colors cursor-pointer">
                 <Youtube size={18} />
-              </a>
+              </span>
             </div>
           </div>
           
@@ -48,11 +48,12 @@ export default function Footer() {
             <ul className="space-y-2">
               {navigationItems.map((item) => (
                 <li key={item.href}>
-                  <Link href={item.href}>
-                    <a className="text-gray-300 hover:text-white transition-colors">
-                      {item.label}
-                    </a>
-                  </Link>
+                  <div 
+                    className="text-gray-300 hover:text-white transition-colors cursor-pointer"
+                    onClick={() => window.location.href = item.href}
+                  >
+                    {item.label}
+                  </div>
                 </li>
               ))}
             </ul>
@@ -103,9 +104,9 @@ export default function Footer() {
           </div>
           
           <div className="flex space-x-4 text-sm text-gray-400">
-            <a href="#" className="hover:text-white transition-colors">{t('footer.termsAndPolicy.legalNotice')}</a>
-            <a href="#" className="hover:text-white transition-colors">{t('footer.termsAndPolicy.privacyPolicy')}</a>
-            <a href="#" className="hover:text-white transition-colors">{t('footer.termsAndPolicy.siteMap')}</a>
+            <span className="hover:text-white transition-colors cursor-pointer">{t('footer.termsAndPolicy.legalNotice')}</span>
+            <span className="hover:text-white transition-colors cursor-pointer">{t('footer.termsAndPolicy.privacyPolicy')}</span>
+            <span className="hover:text-white transition-colors cursor-pointer">{t('footer.termsAndPolicy.siteMap')}</span>
           </div>
           
           <LanguageSwitcher variant="footer" />
