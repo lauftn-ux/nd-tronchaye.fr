@@ -1,0 +1,144 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 47.4% 11.2%;
+    
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 47.4% 11.2%;
+    
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 47.4% 11.2%;
+    
+    --primary: 210 29.4% 24.7%; /* #2C3E50 - deep navy */
+    --primary-foreground: 210 40% 98%;
+    
+    --secondary: 0 100% 27.1%; /* #8B0000 - burgundy */
+    --secondary-foreground: 0 0% 98%;
+    
+    --accent: 45 68% 52.9%; /* #D4AF37 - gold */
+    --accent-foreground: 210 29.4% 24.7%; /* Primary color for contrast */
+    
+    --stone: 0 0% 89.8%; /* #E5E5E5 - light grey */
+    
+    --destructive: 0 100% 50%;
+    --destructive-foreground: 210 40% 98%;
+    
+    --ring: 215 20.2% 65.1%;
+    
+    --radius: 0.5rem;
+
+    /* Chart Colors */
+    --chart-1: 210 29.4% 24.7%;
+    --chart-2: 0 100% 27.1%;
+    --chart-3: 45 68% 52.9%;
+    --chart-4: 0 0% 89.8%;
+    --chart-5: 205 100% 40%;
+    
+    /* Sidebar Colors */
+    --sidebar-background: 210 29.4% 24.7%;
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 45 68% 52.9%;
+    --sidebar-primary-foreground: 210 29.4% 24.7%;
+    --sidebar-accent: 0 100% 27.1%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 210 29.4% 24.7%;
+    --sidebar-ring: 45 68% 52.9%;
+  }
+ 
+  .dark {
+    --background: 224 71% 4%;
+    --foreground: 213 31% 91%;
+    
+    --muted: 223 47% 11%;
+    --muted-foreground: 215.4 16.3% 56.9%;
+    
+    --popover: 224 71% 4%;
+    --popover-foreground: 215 20.2% 65.1%;
+    
+    --border: 216 34% 17%;
+    --input: 216 34% 17%;
+    
+    --card: 224 71% 4%;
+    --card-foreground: 213 31% 91%;
+    
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 1.2%;
+    
+    --secondary: 222.2 47.4% 11.2%;
+    --secondary-foreground: 210 40% 98%;
+    
+    --accent: 216 34% 17%;
+    --accent-foreground: 210 40% 98%;
+    
+    --destructive: 0 63% 31%;
+    --destructive-foreground: 210 40% 98%;
+    
+    --ring: 216 34% 17%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-cormorant;
+  }
+}
+
+/* Font families */
+@layer base {
+  @font-face {
+    font-family: 'Cormorant Garamond';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url(https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&display=swap);
+  }
+  
+  @font-face {
+    font-family: 'Lato';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url(https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap);
+  }
+  
+  .font-cormorant {
+    font-family: 'Cormorant Garamond', serif;
+  }
+  
+  .font-lato {
+    font-family: 'Lato', sans-serif;
+  }
+}
+
+/* Custom styling for parallax effect */
+.parallax {
+  background-attachment: fixed;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+/* Fix for mobile devices where fixed background attachment doesn't work well */
+@media (max-width: 768px) {
+  .parallax {
+    background-attachment: scroll;
+  }
+}
