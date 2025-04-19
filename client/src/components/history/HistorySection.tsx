@@ -26,6 +26,15 @@ export default function HistorySection() {
             {t('history.origins.paragraph3')}
           </p>
           
+          <div className="mt-6">
+            <button 
+              onClick={() => window.open('/histoire', '_blank')} 
+              className="bg-secondary hover:bg-secondary/90 text-white px-6 py-2 rounded-md transition-colors"
+            >
+              {t('common.learnMore')}
+            </button>
+          </div>
+          
           <div className="mt-10" id="architecture">
             <h3 className="font-cormorant text-2xl text-secondary mb-4">
               {t('history.architecture.title')}

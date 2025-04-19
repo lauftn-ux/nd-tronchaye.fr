@@ -45,12 +45,13 @@ export default function EventsSection() {
       </div>
       
       <div className="text-center mt-10">
-        <Link href="#calendar">
-          <Button className="inline-flex items-center px-6 py-3 bg-primary text-white font-semibold rounded hover:bg-opacity-90 transition-all">
-            <Calendar className="mr-2 h-5 w-5" />
-            {t('events.viewAll')}
-          </Button>
-        </Link>
+        <div
+          onClick={() => window.location.href = "/calendar"}
+          className="inline-flex items-center px-6 py-3 bg-primary text-white font-semibold rounded hover:bg-opacity-90 transition-all cursor-pointer"
+        >
+          <Calendar className="mr-2 h-5 w-5" />
+          {t('calendar.title')}
+        </div>
       </div>
     </PageSection>
   );

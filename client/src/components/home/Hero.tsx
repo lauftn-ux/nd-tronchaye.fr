@@ -23,18 +23,20 @@ export default function Hero() {
             {t('home.subtitle')}
           </p>
           <div className="flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-4">
-            <Link href="#schedule">
-              <a className="px-6 py-3 bg-primary text-white font-semibold rounded hover:bg-opacity-90 transition-all flex items-center">
-                <Clock className="mr-2 h-5 w-5" />
-                {t('home.viewMassTimes')}
-              </a>
-            </Link>
-            <Link href="#history">
-              <a className="px-6 py-3 bg-accent text-primary font-semibold rounded hover:bg-opacity-90 transition-all flex items-center">
-                <Landmark className="mr-2 h-5 w-5" />
-                {t('home.discoverHistory')}
-              </a>
-            </Link>
+            <div
+              className="px-6 py-3 bg-primary text-white font-semibold rounded hover:bg-opacity-90 transition-all flex items-center cursor-pointer"
+              onClick={() => window.location.hash = "schedule"}
+            >
+              <Clock className="mr-2 h-5 w-5" />
+              {t('home.viewMassTimes')}
+            </div>
+            <div
+              className="px-6 py-3 bg-accent text-primary font-semibold rounded hover:bg-opacity-90 transition-all flex items-center cursor-pointer"
+              onClick={() => window.location.hash = "history"}
+            >
+              <Landmark className="mr-2 h-5 w-5" />
+              {t('home.discoverHistory')}
+            </div>
           </div>
         </div>
       </div>
