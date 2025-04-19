@@ -18,17 +18,12 @@ export default function Header() {
 
   const navigationItems = [
     { href: "/", label: t("navigation.home") },
-    { href: "/#history", label: t("navigation.history"), 
-      subItems: [
-        { href: "/#architecture", label: t("navigation.architecture") }
-      ]
-    },
+    { href: "/#history", label: t("navigation.history") },
     { href: "/#schedule", label: t("navigation.schedule") },
     { href: "/#sacraments", label: t("navigation.sacraments") },
     { href: "/#events", label: t("navigation.events") },
     { href: "/#gallery", label: t("navigation.gallery") },
-    { href: "/#contact", label: t("navigation.contact") },
-    { href: "/#calendar", label: t("navigation.calendar") }
+    { href: "/#contact", label: t("navigation.contact") }
   ];
 
   return (
@@ -63,24 +58,16 @@ export default function Header() {
                 <nav className="flex flex-col space-y-3 py-3 mt-10">
                   {navigationItems.map((item) => (
                     <div key={item.href}>
-                      <Link href={item.href}>
-                        <a 
-                          className="text-primary hover:text-secondary transition-colors block py-2"
-                          onClick={() => setIsOpen(false)}
-                        >
-                          {item.label}
-                        </a>
-                      </Link>
-                      {item.subItems?.map((subItem) => (
-                        <Link key={subItem.href} href={subItem.href}>
-                          <a 
-                            className="text-primary hover:text-secondary transition-colors pl-4 text-sm py-2 block"
-                            onClick={() => setIsOpen(false)}
-                          >
-                            - {subItem.label}
-                          </a>
-                        </Link>
-                      ))}
+                      <div
+                        className="text-primary hover:text-secondary transition-colors block py-2 cursor-pointer"
+                        onClick={() => {
+                          setIsOpen(false);
+                          window.location.href = item.href;
+                        }}
+                      >
+                        {item.label}
+                      </div>
+
                     </div>
                   ))}
                 </nav>
@@ -91,24 +78,13 @@ export default function Header() {
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-6">
             {navigationItems.map((item) => (
-              <div key={item.href} className={cn("relative group", item.subItems && "has-dropdown")}>
-                <Link href={item.href}>
-                  <a className="text-primary hover:text-secondary transition-colors">
-                    {item.label}
-                  </a>
-                </Link>
-                
-                {item.subItems && (
-                  <div className="absolute hidden group-hover:block bg-white shadow-md py-2 px-4 min-w-max">
-                    {item.subItems.map((subItem) => (
-                      <Link key={subItem.href} href={subItem.href}>
-                        <a className="block py-1 text-primary hover:text-secondary">
-                          {subItem.label}
-                        </a>
-                      </Link>
-                    ))}
-                  </div>
-                )}
+              <div key={item.href} className="relative group">
+                <div 
+                  className="text-primary hover:text-secondary transition-colors cursor-pointer"
+                  onClick={() => window.location.href = item.href}
+                >
+                  {item.label}
+                </div>
               </div>
             ))}
           </nav>
