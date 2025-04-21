@@ -13,6 +13,7 @@ export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
+  getAllUsers(): Promise<User[]>;
   
   // Event operations
   getAllEvents(): Promise<Event[]>;
@@ -202,6 +203,10 @@ export class MemStorage implements IStorage {
     const newUser: User = { ...user, id };
     this.users.set(id, newUser);
     return newUser;
+  }
+  
+  async getAllUsers(): Promise<User[]> {
+    return Array.from(this.users.values());
   }
 
   // Event operations

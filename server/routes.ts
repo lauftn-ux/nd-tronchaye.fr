@@ -1,6 +1,7 @@
-import type { Express, Request, Response } from "express";
+import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+import { setupAuth, isAdmin } from "./auth";
 import multer from "multer";
 import { insertContactMessageSchema, insertEventSchema, insertPhotoSchema, insertSpecialEventSchema, insertSubscriberSchema } from "@shared/schema";
 import { ZodError } from "zod";
@@ -23,6 +24,9 @@ const upload = multer({
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Configurer l'authentification
+  setupAuth(app);
+  
   // API Routes - all prefixed with /api
   
   // Events API
@@ -251,6 +255,163 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: validationError.message });
       }
       res.status(500).json({ message: "Failed to subscribe" });
+    }
+  });
+
+  // Routes protégées d'administration
+  // Middleware pour vérifier si l'utilisateur est admin
+  const requireAdmin = (req: Request, res: Response, next: NextFunction) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "Non authentifié" });
+    }
+    
+    // @ts-ignore - Problème de typage avec isAdmin
+    if (!req.user.isAdmin) {
+      return res.status(403).json({ message: "Accès refusé" });
+    }
+    
+    next();
+  };
+
+  // API pour la gestion d'événements (admin uniquement)
+  app.get("/api/admin/events", requireAdmin, async (_req: Request, res: Response) => {
+    try {
+      const events = await storage.getAllEvents();
+      res.json(events);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch events" });
+    }
+  });
+
+  app.post("/api/admin/events", requireAdmin, async (req: Request, res: Response) => {
+    try {
+      const validatedData = insertEventSchema.parse(req.body);
+      const newEvent = await storage.createEvent(validatedData);
+      res.status(201).json(newEvent);
+    } catch (error) {
+      if (error instanceof ZodError) {
+        const validationError = fromZodError(error);
+        return res.status(400).json({ message: validationError.message });
+      }
+      res.status(500).json({ message: "Failed to create event" });
+    }
+  });
+
+  app.put("/api/admin/events/:id", requireAdmin, async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid event ID" });
+      }
+      
+      const validatedData = insertEventSchema.partial().parse(req.body);
+      const updatedEvent = await storage.updateEvent(id, validatedData);
+      
+      if (!updatedEvent) {
+        return res.status(404).json({ message: "Event not found" });
+      }
+      
+      res.json(updatedEvent);
+    } catch (error) {
+      if (error instanceof ZodError) {
+        const validationError = fromZodError(error);
+        return res.status(400).json({ message: validationError.message });
+      }
+      res.status(500).json({ message: "Failed to update event" });
+    }
+  });
+
+  app.delete("/api/admin/events/:id", requireAdmin, async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid event ID" });
+      }
+      
+      const success = await storage.deleteEvent(id);
+      if (!success) {
+        return res.status(404).json({ message: "Event not found" });
+      }
+      
+      res.status(204).end();
+    } catch (error) {
+      res.status(500).json({ message: "Failed to delete event" });
+    }
+  });
+
+  // API pour la gestion des événements spéciaux (admin uniquement)
+  app.get("/api/admin/events/special", requireAdmin, async (_req: Request, res: Response) => {
+    try {
+      const specialEvents = await storage.getAllSpecialEvents();
+      res.json(specialEvents);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch special events" });
+    }
+  });
+
+  app.post("/api/admin/events/special", requireAdmin, async (req: Request, res: Response) => {
+    try {
+      const validatedData = insertSpecialEventSchema.parse(req.body);
+      const newEvent = await storage.createSpecialEvent(validatedData);
+      res.status(201).json(newEvent);
+    } catch (error) {
+      if (error instanceof ZodError) {
+        const validationError = fromZodError(error);
+        return res.status(400).json({ message: validationError.message });
+      }
+      res.status(500).json({ message: "Failed to create special event" });
+    }
+  });
+
+  app.put("/api/admin/events/special/:id", requireAdmin, async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid event ID" });
+      }
+      
+      const validatedData = insertSpecialEventSchema.partial().parse(req.body);
+      const updatedEvent = await storage.updateSpecialEvent(id, validatedData);
+      
+      if (!updatedEvent) {
+        return res.status(404).json({ message: "Special event not found" });
+      }
+      
+      res.json(updatedEvent);
+    } catch (error) {
+      if (error instanceof ZodError) {
+        const validationError = fromZodError(error);
+        return res.status(400).json({ message: validationError.message });
+      }
+      res.status(500).json({ message: "Failed to update special event" });
+    }
+  });
+
+  app.delete("/api/admin/events/special/:id", requireAdmin, async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid event ID" });
+      }
+      
+      const success = await storage.deleteSpecialEvent(id);
+      if (!success) {
+        return res.status(404).json({ message: "Special event not found" });
+      }
+      
+      res.status(204).end();
+    } catch (error) {
+      res.status(500).json({ message: "Failed to delete special event" });
+    }
+  });
+
+  // Récupérer les messages de contact (admin uniquement)
+  app.get("/api/admin/contacts", requireAdmin, async (_req: Request, res: Response) => {
+    try {
+      const messages = await storage.getAllContactMessages();
+      res.json(messages);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch contact messages" });
     }
   });
 
