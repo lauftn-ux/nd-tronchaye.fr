@@ -5,19 +5,13 @@ import session from "express-session";
 import { scrypt, randomBytes, timingSafeEqual } from "crypto";
 import { promisify } from "util";
 import { storage } from "./storage";
-import { User as SelectUser } from "@shared/schema";
+import { User } from "@shared/schema";
 import createMemoryStore from "memorystore";
 
 const MemoryStore = createMemoryStore(session);
-
-declare global {
-  namespace Express {
-    interface User extends SelectUser {}
-  }
-}
-
 const scryptAsync = promisify(scrypt);
 
+// Helper functions pour la gestion des mots de passe
 async function hashPassword(password: string) {
   const salt = randomBytes(16).toString("hex");
   const buf = (await scryptAsync(password, salt, 64)) as Buffer;
@@ -32,92 +26,121 @@ async function comparePasswords(supplied: string, stored: string) {
 }
 
 export function setupAuth(app: Express) {
-  const sessionSettings: session.SessionOptions = {
-    secret: process.env.SESSION_SECRET || "notre-dame-de-la-tronchaye-secret",
+  // Configuration de la session
+  const sessionStore = new MemoryStore({
+    checkPeriod: 86400000 // 1 jour en millisecondes
+  });
+
+  app.use(session({
+    secret: "santuary-notre-dame-secret", // Dans un environnement de production, utiliser process.env.SESSION_SECRET
     resave: false,
     saveUninitialized: false,
-    store: new MemoryStore({
-      checkPeriod: 86400000 // 24 heures
-    }),
+    store: sessionStore,
     cookie: {
-      maxAge: 86400000 // 24 heures
+      maxAge: 24 * 60 * 60 * 1000, // 1 jour en millisecondes
+      secure: false // Mettre à true en production si HTTPS
     }
-  };
+  }));
 
-  app.set("trust proxy", 1);
-  app.use(session(sessionSettings));
+  // Initialisation de passport
   app.use(passport.initialize());
   app.use(passport.session());
 
-  passport.use(
-    new LocalStrategy(async (username, password, done) => {
+  // Stratégie d'authentification locale
+  passport.use(new LocalStrategy(async (username, password, done) => {
+    try {
       const user = await storage.getUserByUsername(username);
-      if (!user || !(await comparePasswords(password, user.password))) {
+      if (!user) {
         return done(null, false);
-      } else {
-        return done(null, user);
       }
-    }),
-  );
 
-  passport.serializeUser((user, done) => done(null, user.id));
-  passport.deserializeUser(async (id: number, done) => {
-    const user = await storage.getUser(id);
-    done(null, user);
-  });
+      const isValid = await comparePasswords(password, user.password);
+      if (!isValid) {
+        return done(null, false);
+      }
 
-  app.post("/api/register", async (req, res, next) => {
-    // Vérifier si c'est le premier utilisateur (admin)
-    const users = await storage.getAllUsers();
-    const isFirstUser = users.length === 0;
-    
-    const existingUser = await storage.getUserByUsername(req.body.username);
-    if (existingUser) {
-      return res.status(400).send("Username already exists");
+      return done(null, user);
+    } catch (error) {
+      return done(error);
     }
+  }));
 
-    const user = await storage.createUser({
-      ...req.body,
-      password: await hashPassword(req.body.password),
-      isAdmin: isFirstUser // Premier utilisateur est admin
-    });
-
-    req.login(user, (err) => {
-      if (err) return next(err);
-      res.status(201).json(user);
-    });
+  // Sérialisation/désérialisation de l'utilisateur pour la session
+  passport.serializeUser((user: User, done) => {
+    done(null, user.id);
   });
 
+  passport.deserializeUser(async (id: number, done) => {
+    try {
+      const user = await storage.getUser(id);
+      done(null, user);
+    } catch (error) {
+      done(error);
+    }
+  });
+
+  // Routes d'authentification
   app.post("/api/login", passport.authenticate("local"), (req, res) => {
-    res.status(200).json(req.user);
+    res.json(req.user);
   });
 
   app.post("/api/logout", (req, res, next) => {
     req.logout((err) => {
-      if (err) return next(err);
+      if (err) {
+        return next(err);
+      }
       res.sendStatus(200);
     });
   });
 
   app.get("/api/user", (req, res) => {
-    if (!req.isAuthenticated()) return res.sendStatus(401);
-    res.json(req.user);
+    // Si l'utilisateur est authentifié, retourner les informations de l'utilisateur
+    if (req.isAuthenticated()) {
+      return res.json(req.user);
+    }
+    // Sinon, erreur 401 Unauthorized
+    res.status(401).json({ message: "Non authentifié" });
   });
 
-  // Un middleware pour vérifier les droits admin
-  app.use('/api/admin/*', (req, res, next) => {
-    if (!req.isAuthenticated()) {
-      return res.status(401).json({ message: "Non authentifié" });
+  app.post("/api/register", async (req, res) => {
+    try {
+      const { username, password } = req.body;
+
+      // Vérifier si l'utilisateur existe déjà
+      const existingUser = await storage.getUserByUsername(username);
+      if (existingUser) {
+        return res.status(400).json({ message: "Le nom d'utilisateur existe déjà" });
+      }
+
+      // Hasher le mot de passe
+      const hashedPassword = await hashPassword(password);
+
+      // Créer l'utilisateur
+      const newUser = await storage.createUser({
+        username,
+        password: hashedPassword,
+        isAdmin: false, // Par défaut, les nouveaux utilisateurs ne sont pas administrateurs
+      });
+
+      // Connecter l'utilisateur
+      req.login(newUser, (err) => {
+        if (err) {
+          return res.status(500).json({ message: "Erreur lors de la connexion" });
+        }
+        return res.status(201).json(newUser);
+      });
+    } catch (error) {
+      res.status(500).json({ message: "Erreur lors de l'inscription" });
     }
-    
-    if (!req.user.isAdmin) {
-      return res.status(403).json({ message: "Accès refusé" });
-    }
-    
-    next();
   });
 }
 
+// Fonction utilitaire pour vérifier si un utilisateur est administrateur
 export function isAdmin(req: Express.Request) {
-  return req.isAuthenticated() && req.user.isAdmin;
+  if (!req.isAuthenticated()) {
+    return false;
+  }
+  
+  // @ts-ignore - Problème potentiel de typage avec isAdmin
+  return req.user?.isAdmin === true;
 }
