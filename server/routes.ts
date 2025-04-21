@@ -123,7 +123,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   // Special Events API (for schedule display)
-  app.get("/api/events/special", async (_req: Request, res: Response) => {
+  app.get("/api/events/special/all", async (_req: Request, res: Response) => {
     try {
       const specialEvents = await storage.getAllSpecialEvents();
       res.json(specialEvents);

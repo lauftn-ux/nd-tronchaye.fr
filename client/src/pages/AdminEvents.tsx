@@ -101,12 +101,12 @@ export default function AdminEvents() {
   const [editingSpecialEvent, setEditingSpecialEvent] = useState<any | null>(null);
 
   // Récupérer les événements
-  const { data: events, isLoading: eventsLoading } = useQuery({
+  const { data: events = [], isLoading: eventsLoading } = useQuery({
     queryKey: ['/api/admin/events'],
   });
 
   // Récupérer les événements spéciaux
-  const { data: specialEvents, isLoading: specialEventsLoading } = useQuery({
+  const { data: specialEvents = [], isLoading: specialEventsLoading } = useQuery({
     queryKey: ['/api/admin/events/special'],
   });
 
