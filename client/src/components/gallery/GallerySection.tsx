@@ -1,6 +1,5 @@
 import { useTranslation } from "react-i18next";
 import PageSection from "../ui/PageSection";
-import ImageUpload from "./ImageUpload";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { ImagePlus } from "lucide-react";
@@ -57,9 +56,7 @@ export default function GallerySection() {
           {t('gallery.viewAll')}
         </Button>
       </div>
-      
-      {/* Photo upload section for administrators */}
-      <ImageUpload />
+
     </PageSection>
   );
 }

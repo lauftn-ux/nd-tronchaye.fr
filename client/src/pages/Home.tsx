@@ -39,13 +39,12 @@ export default function Home() {
     <>
       <Hero />
       <Welcome />
-      <HistorySection />
       <ScheduleSection />
       <SacramentsSection />
       <EventsSection />
-      <GallerySection />
       <ContactSection />
-      <CalendarSection />
+      <GallerySection />
+      <HistorySection />
     </>
   );
 }
