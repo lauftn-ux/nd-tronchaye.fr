@@ -2,11 +2,7 @@ import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { useTranslation } from "react-i18next";
 import LanguageSwitcher, { MobileLanguageSwitcher } from "../LanguageSwitcher";
-import { 
-  Sheet, 
-  SheetContent, 
-  SheetTrigger 
-} from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Menu } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -23,7 +19,7 @@ export default function Header() {
     { href: "/#sacraments", label: t("navigation.sacraments") },
     { href: "/#events", label: t("navigation.events") },
     { href: "/#gallery", label: t("navigation.gallery") },
-    { href: "/#contact", label: t("navigation.contact") }
+    { href: "/#contact", label: t("navigation.contact") },
   ];
 
   return (
@@ -32,22 +28,24 @@ export default function Header() {
         <div className="flex justify-between items-center">
           <div className="flex items-center">
             <div className="mr-4">
-              <img 
-                src="/LogoNdT.png"
-                alt="Logo Notre Dame de la Tronchaye" 
-                className="h-12 w-auto" 
+              <img
+                src="client/src/components/public/LogoNdT.png"
+                alt="Logo Notre Dame de la Tronchaye"
+                className="h-12 w-auto"
               />
             </div>
             <div>
-              <h1 className="font-cormorant text-xl font-semibold text-primary">Notre Dame de la Tronchaye</h1>
+              <h1 className="font-cormorant text-xl font-semibold text-primary">
+                Notre Dame de la Tronchaye
+              </h1>
               <p className="text-xs text-secondary">Rochefort en Terre</p>
             </div>
           </div>
-          
+
           {/* Mobile Menu Button */}
           <div className="md:hidden flex items-center gap-2">
             <MobileLanguageSwitcher />
-            
+
             <Sheet open={isOpen} onOpenChange={setIsOpen}>
               <SheetTrigger asChild>
                 <Button variant="ghost" size="icon" className="text-primary">
@@ -67,28 +65,27 @@ export default function Header() {
                       >
                         {item.label}
                       </div>
-
                     </div>
                   ))}
                 </nav>
               </SheetContent>
             </Sheet>
           </div>
-          
+
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-6">
             {navigationItems.map((item) => (
               <div key={item.href} className="relative group">
-                <div 
+                <div
                   className="text-primary hover:text-secondary transition-colors cursor-pointer"
-                  onClick={() => window.location.href = item.href}
+                  onClick={() => (window.location.href = item.href)}
                 >
                   {item.label}
                 </div>
               </div>
             ))}
           </nav>
-          
+
           {/* Language Selector */}
           <LanguageSwitcher />
         </div>
