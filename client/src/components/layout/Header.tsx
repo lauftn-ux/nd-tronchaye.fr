@@ -33,7 +33,7 @@ export default function Header() {
           <div className="flex items-center">
             <div className="mr-4">
               <img 
-                src="https://raw.githubusercontent.com/lauftn-ux/nd-tronchaye/refs/heads/main/public/LogoNdT.png?token=GHSAT0AAAAAADC2TIPGHAE7YDHW3BFV3FRI2ALSJFA" 
+                src="https://images.unsplash.com/photo-1605256585681-455837661b76?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&h=100&q=80" 
                 alt="Logo Notre Dame de la Tronchaye" 
                 className="h-12 w-auto" 
               />
