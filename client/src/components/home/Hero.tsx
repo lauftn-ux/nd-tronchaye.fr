@@ -10,7 +10,7 @@ export default function Hero() {
       id="home" 
       className="pt-24 bg-cover bg-center bg-no-repeat" 
       style={{ 
-        backgroundImage: "url('https://images.unsplash.com/photo-1500021804447-2ca2eaaaabeb?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&h=1080&q=80')", 
+        backgroundImage: "url('/Sanctuaire.webp')", 
         height: "85vh" 
       }}
     >
