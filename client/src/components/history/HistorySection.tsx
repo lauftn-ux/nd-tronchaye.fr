@@ -42,24 +42,14 @@ export default function HistorySection() {
         <div className="md:w-1/2 space-y-6">
           <img
             src="client/src/components/public/IMG_9328.webp"
-            alt="Vue extérieure du sanctuaire
-            <img 
-              src="/IMG_9297.webp" 
-              alt="Vue extérieure du sanctuaire"
-              className="w-full h-auto rounded-lg shadow-lg"
-            />"
+            alt="Vue extérieure du sanctuaire"
             className="w-full h-auto rounded-lg shadow-md"
           />
 
           <div className="grid grid-cols-2 gap-4">
             <img
               src="https://images.unsplash.com/photo-1601085134995-344fe3fa29bf?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300&q=80"
-              alt="Détails architecturaux
-            <img 
-              src="/IMG_9301.webp" 
               alt="Détails architecturaux"
-              className="w-full h-auto rounded-lg shadow-lg"
-            />"
               className="w-full h-auto rounded-lg shadow-md"
             />
             <img
