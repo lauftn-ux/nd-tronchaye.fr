@@ -24,7 +24,7 @@ export default function Welcome() {
           </div>
           <div className="md:w-1/2">
             <img 
-              src="https://images.unsplash.com/photo-1438804339143-a0d6e5123871?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600&q=80" 
+              src="https://0f68e0a5-491a-44f8-ac88-1758dce39467-00-2p05pq5wb136e.janeway.replit.dev/client/src/images/IMG_9297.webp?token=GHSAT0AAAAAADC2TIPHWNX5KLCS2PPHHX742ALSIIA" 
               alt="Intérieur du sanctuaire" 
               className="rounded-lg shadow-lg w-full h-auto" 
             />
