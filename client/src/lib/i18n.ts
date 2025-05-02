@@ -121,9 +121,9 @@ const en = {
       description: 'The matrimonial covenant, by which a man and a woman establish a partnership of life.',
       action: 'Prepare your marriage'
     },
-    others: {
-      title: 'Other Sacraments',
-      description: 'Holy Orders and Anointing of the Sick complete the seven sacraments instituted by Christ.',
+    anointing: {
+      title: 'Anointing of the Sick',
+      description: 'This sacrament brings spiritual strength and comfort to those who are seriously ill or weakened by old age.',
       action: 'More information'
     }
   },
@@ -337,9 +337,9 @@ const de = {
       description: 'Der Ehebund, durch den ein Mann und eine Frau eine Lebensgemeinschaft begründen.',
       action: 'Ihre Hochzeit vorbereiten'
     },
-    others: {
-      title: 'Andere Sakramente',
-      description: 'Weihe und Krankensalbung vervollständigen die sieben von Christus eingesetzten Sakramente.',
+    anointing: {
+      title: 'Krankensalbung',
+      description: 'Dieses Sakrament bringt geistliche Stärke und Trost für diejenigen, die ernsthaft krank oder durch Alter geschwächt sind.',
       action: 'Weitere Informationen'
     }
   },
@@ -553,9 +553,9 @@ const fr = {
       description: 'L\'alliance matrimoniale, par laquelle un homme et une femme constituent une communauté de vie.',
       action: 'Préparer votre mariage'
     },
-    others: {
-      title: 'Autres Sacrements',
-      description: 'L\'Ordre et l\'Onction des malades complètent les sept sacrements institués par le Christ.',
+    anointing: {
+      title: 'L\'Onction des malades',
+      description: 'Ce sacrement apporte force spirituelle et réconfort à ceux qui sont gravement malades ou affaiblis par l\'âge.',
       action: 'Plus d\'informations'
     }
   },
