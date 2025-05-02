@@ -69,7 +69,7 @@ export default function SacramentsSection() {
       description: t("sacraments.confirmation.description"),
       action: t("sacraments.confirmation.action"),
       link: "/#contact",
-      image: "/NdT  - 1.webp",
+      image: "/NdT-1.webp",
     },
     {
       icon: <Wheat />,
