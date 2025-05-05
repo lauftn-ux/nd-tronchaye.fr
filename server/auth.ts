@@ -45,16 +45,35 @@ export function setupAuth(app: Express) {
 
   app.use(session({
     secret: "sanctuary-notre-dame-secret", // Dans un environnement de production, utiliser process.env.SESSION_SECRET
-    resave: false,
-    saveUninitialized: false,
+    resave: true,
+    saveUninitialized: true,
     store: sessionStore,
     cookie: {
       maxAge: 24 * 60 * 60 * 1000, // 1 jour en millisecondes
       secure: false, // Mettre à true en production si HTTPS
       httpOnly: true,
-      sameSite: 'lax'
+      sameSite: 'lax',
+      path: '/' 
     }
   }));
+  
+  // Cors options pour permettre au client React de communiquer avec le serveur
+  app.use((req, res, next) => {
+    // Autoriser les requêtes depuis le domaine du client (le même domaine en production)
+    res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
+    // Autoriser les cookies
+    res.header('Access-Control-Allow-Credentials', 'true');
+    // Autoriser les headers spécifiques
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+    // Autoriser les méthodes HTTP spécifiques
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    
+    // Traiter les requêtes CORS preflight
+    if (req.method === 'OPTIONS') {
+      return res.sendStatus(200);
+    }
+    next();
+  });
   
   // Initialisation de passport
   app.use(passport.initialize());
