@@ -148,43 +148,43 @@ export class MemStorage implements IStorage {
     
     // Add sample photos
     this.createPhoto({
-      title: "Façade du sanctuaire",
-      url: "https://images.unsplash.com/photo-1548743897-cd4114d6432b?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300&q=80"
+      title: "Sanctuaire Notre Dame de la Tronchaye",
+      url: "/IMG_9298.webp"
     });
     
     this.createPhoto({
-      title: "Autel du sanctuaire",
-      url: "https://images.unsplash.com/photo-1513031300226-c8fb12de9ade?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300&q=80"
+      title: "Intérieur de la chapelle",
+      url: "/IMG_9301.webp"
     });
     
     this.createPhoto({
-      title: "Vitrail",
-      url: "https://images.unsplash.com/photo-1543599723-86e82f3bae11?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300&q=80"
+      title: "Détail de l'autel",
+      url: "/IMG_9302.webp"
     });
     
     this.createPhoto({
-      title: "Statue de la Vierge",
-      url: "https://images.unsplash.com/photo-1519335337423-a3357c1cd5e5?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300&q=80"
+      title: "Vierge à l'Enfant",
+      url: "/IMG_9303.webp"
     });
     
     this.createPhoto({
-      title: "Procession mariale",
-      url: "https://images.unsplash.com/photo-1544911845-1f34a3eb46b1?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300&q=80"
+      title: "Vitrail de Notre Dame",
+      url: "/IMG_9305.webp"
     });
     
     this.createPhoto({
-      title: "Décoration florale",
-      url: "https://images.unsplash.com/photo-1565409144664-c0ec50d42497?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300&q=80"
+      title: "Chapelle latérale",
+      url: "/IMG_9309.webp"
     });
     
     this.createPhoto({
-      title: "Coucher de soleil sur le sanctuaire",
-      url: "https://images.unsplash.com/photo-1490730141103-6cac27aaab94?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300&q=80"
+      title: "Détail d'architecture",
+      url: "/IMG_9310.webp"
     });
     
     this.createPhoto({
-      title: "Détail architectural",
-      url: "https://images.unsplash.com/photo-1481142889578-dda440dacfe1?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300&q=80"
+      title: "Vue d'ensemble du sanctuaire",
+      url: "/IMG_9315.webp"
     });
   }
 
