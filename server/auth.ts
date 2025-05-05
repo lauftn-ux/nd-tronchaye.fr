@@ -56,16 +56,20 @@ export function setupAuth(app: Express) {
     }
   }));
   
-  // Pour débogage - journaliser les données de session
-  app.use((req, res, next) => {
-    console.log("Session ID:", req.sessionID);
-    console.log("Authentifié:", req.isAuthenticated());
-    next();
-  });
-
   // Initialisation de passport
   app.use(passport.initialize());
   app.use(passport.session());
+  
+  // Pour débogage - journaliser les données de session
+  app.use((req, res, next) => {
+    console.log("Session ID:", req.sessionID);
+    try {
+      console.log("Authentifié:", req.isAuthenticated());
+    } catch (error) {
+      console.error("Erreur lors de la vérification de l'authentification:", error);
+    }
+    next();
+  });
 
   // Stratégie d'authentification locale
   passport.use(new LocalStrategy(async (username, password, done) => {
