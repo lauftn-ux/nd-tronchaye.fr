@@ -629,6 +629,56 @@ export default function Admin() {
             </DialogDescription>
           </DialogHeader>
           
+          <Form {...editPhotoForm}>
+            <form onSubmit={editPhotoForm.handleSubmit(onEditPhotoSubmit)} className="space-y-4">
+              <FormField
+                control={editPhotoForm.control}
+                name="title"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Titre</FormLabel>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={editPhotoForm.control}
+                name="url"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>URL de l'image</FormLabel>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <DialogFooter>
+                <Button 
+                  variant="outline" 
+                  onClick={() => setEditPhotoDialogOpen(false)}
+                  type="button"
+                >
+                  Annuler
+                </Button>
+                <Button 
+                  type="submit" 
+                  disabled={editPhotoMutation.isPending}
+                >
+                  {editPhotoMutation.isPending ? "Enregistrement..." : "Enregistrer"}
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
+
       {/* Modal pour changer les identifiants admin */}
       <Dialog open={isChangingCredentials} onOpenChange={setIsChangingCredentials}>
         <DialogContent className="sm:max-w-[425px]">
@@ -687,56 +737,6 @@ export default function Admin() {
               </Button>
             </DialogFooter>
           </form>
-        </DialogContent>
-      </Dialog>
-          
-          <Form {...editPhotoForm}>
-            <form onSubmit={editPhotoForm.handleSubmit(onEditPhotoSubmit)} className="space-y-4">
-              <FormField
-                control={editPhotoForm.control}
-                name="title"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Titre</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <FormField
-                control={editPhotoForm.control}
-                name="url"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>URL de l'image</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <DialogFooter>
-                <Button 
-                  variant="outline" 
-                  onClick={() => setEditPhotoDialogOpen(false)}
-                  type="button"
-                >
-                  Annuler
-                </Button>
-                <Button 
-                  type="submit" 
-                  disabled={editPhotoMutation.isPending}
-                >
-                  {editPhotoMutation.isPending ? "Enregistrement..." : "Enregistrer"}
-                </Button>
-              </DialogFooter>
-            </form>
-          </Form>
         </DialogContent>
       </Dialog>
     </div>
