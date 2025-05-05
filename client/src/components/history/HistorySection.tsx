@@ -18,7 +18,7 @@ export default function HistorySection() {
 
           <div className="mt-6">
             <button
-              onClick={() => window.open("/histoire", "_blank")}
+              onClick={() => window.location.href = "/history"}
               className="bg-secondary hover:bg-secondary/90 text-white px-6 py-2 rounded-md transition-colors"
             >
               {t("common.learnMore")}

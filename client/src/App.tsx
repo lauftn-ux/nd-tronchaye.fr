@@ -9,6 +9,8 @@ import Footer from "@/components/layout/Footer";
 import Home from "@/pages/Home";
 import EventDetails from "@/pages/EventDetails";
 import Calendar from "@/pages/Calendar";
+import History from "@/pages/History";
+import Gallery from "@/pages/Gallery";
 import AdminLogin from "@/pages/AdminLogin"; 
 import AdminEvents from "@/pages/AdminEvents";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
@@ -26,6 +28,8 @@ function Router() {
       <Route path="/" component={Home} />
       <Route path="/events/:id" component={EventDetails} />
       <Route path="/calendar" component={Calendar} />
+      <Route path="/history" component={History} />
+      <Route path="/gallery" component={Gallery} />
       <Route path="/admin-login" component={AdminLogin} />
       <ProtectedRoute path="/admin" component={AdminEvents} adminOnly={true} />
       <Route component={NotFound} />
