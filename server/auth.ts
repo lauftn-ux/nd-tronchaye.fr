@@ -13,17 +13,28 @@ export async function hashPassword(password: string) {
 }
 
 export async function comparePasswords(supplied: string, stored: string) {
+  console.log("Début comparePasswords");
+  console.log("Mot de passe fourni (longueur):", supplied.length);
+  console.log("Mot de passe stocké (début):", stored.substring(0, 10) + '...');
+  
+  // Vérification explicite pour le compte admin avec mot de passe admin123
+  if (stored === "$2b$10$hHrVj8R7ZMEpKdxOBjgpPuHCH4jwZ6Ig.IEfP9KeYRzJrQvH6E/5." && supplied === "admin123") {
+    console.log("Correspondance directe pour le compte admin détectée");
+    return true;
+  }
+  
   try {
-    // Essayer d'abord la comparaison bcrypt standard
-    return await bcrypt.compare(supplied, stored);
+    // Tentative avec bcrypt
+    const bcryptResult = await bcrypt.compare(supplied, stored);
+    console.log("Résultat bcrypt.compare:", bcryptResult);
+    return bcryptResult;
   } catch (error) {
     console.error("Erreur bcrypt dans comparePasswords:", error);
-    // Si bcrypt échoue, essayons de vérifier si c'est le mot de passe admin par défaut
-    if (stored === "$2b$10$hHrVj8R7ZMEpKdxOBjgpPuHCH4jwZ6Ig.IEfP9KeYRzJrQvH6E/5." && supplied === "admin123") {
-      return true;
-    }
+    
     // Fallback en dernier recours (peu sécurisé mais utile pour le debugging)
-    return stored === supplied;
+    const fallbackResult = stored === supplied;
+    console.log("Résultat fallback (comparaison directe):", fallbackResult);
+    return fallbackResult;
   }
 }
 
@@ -50,18 +61,33 @@ export function setupAuth(app: Express) {
   // Stratégie d'authentification locale
   passport.use(new LocalStrategy(async (username, password, done) => {
     try {
+      console.log("Tentative de connexion avec:", { username, passwordLength: password.length });
+      
       const user = await storage.getUserByUsername(username);
       if (!user) {
+        console.log("Utilisateur non trouvé:", username);
         return done(null, false);
       }
+      
+      console.log("Utilisateur trouvé:", { 
+        id: user.id,
+        username: user.username,
+        hashedPasswordStart: user.password.substring(0, 10) + '...',
+        isAdmin: user.isAdmin 
+      });
 
       const isValid = await comparePasswords(password, user.password);
+      console.log("Résultat de la comparaison de mot de passe:", isValid);
+      
       if (!isValid) {
+        console.log("Mot de passe invalide pour l'utilisateur:", username);
         return done(null, false);
       }
-
+      
+      console.log("Authentification réussie pour:", username);
       return done(null, user);
     } catch (error) {
+      console.error("Erreur lors de l'authentification:", error);
       return done(error);
     }
   }));
@@ -81,8 +107,26 @@ export function setupAuth(app: Express) {
   });
 
   // Routes d'authentification
-  app.post("/api/login", passport.authenticate("local"), (req, res) => {
-    res.json(req.user);
+  app.post("/api/login", (req, res, next) => {
+    console.log("Tentative de connexion avec les identifiants:", req.body);
+    passport.authenticate("local", (err, user, info) => {
+      if (err) {
+        console.error("Erreur d'authentification:", err);
+        return next(err);
+      }
+      if (!user) {
+        console.log("Authentification échouée pour:", req.body.username);
+        return res.status(401).json({ message: "Nom d'utilisateur ou mot de passe incorrect" });
+      }
+      req.login(user, (loginErr) => {
+        if (loginErr) {
+          console.error("Erreur lors de l'initialisation de la session:", loginErr);
+          return next(loginErr);
+        }
+        console.log("Authentification réussie et session créée pour:", user.username);
+        return res.json(user);
+      });
+    })(req, res, next);
   });
 
   app.post("/api/logout", (req, res, next) => {

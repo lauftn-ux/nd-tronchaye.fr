@@ -202,7 +202,12 @@ export class MemStorage implements IStorage {
 
   async createUser(user: InsertUser): Promise<User> {
     const id = this.userIdCounter++;
-    const newUser: User = { ...user, id };
+    // S'assurer que isAdmin est toujours défini
+    const newUser: User = { 
+      ...user, 
+      id,
+      isAdmin: user.isAdmin === undefined ? false : user.isAdmin 
+    };
     this.users.set(id, newUser);
     return newUser;
   }
@@ -231,7 +236,12 @@ export class MemStorage implements IStorage {
 
   async createEvent(event: InsertEvent): Promise<Event> {
     const id = this.eventIdCounter++;
-    const newEvent: Event = { ...event, id };
+    const newEvent: Event = { 
+      ...event, 
+      id,
+      type: event.type || 'regular',
+      featured: event.featured === undefined ? false : event.featured 
+    };
     this.events.set(id, newEvent);
     return newEvent;
   }

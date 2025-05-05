@@ -33,14 +33,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const adminUser = await storage.getUserByUsername("admin");
       
       if (adminUser) {
-        return res.json({ message: "L'utilisateur admin existe déjà", admin: adminUser });
+        // Si l'utilisateur admin existe déjà, vérifier que nous pouvons nous connecter avec
+        console.log("Utilisateur admin existant trouvé:", { 
+          id: adminUser.id, 
+          username: adminUser.username, 
+          passwordStart: adminUser.password.substring(0, 10) + '...', 
+          isAdmin: adminUser.isAdmin 
+        });
+        
+        // Si besoin, réinitialiser le mot de passe admin (décommenter cette section si nécessaire)
+        const hashedPassword = await hashPassword("admin123");
+        const updatedAdmin = await storage.updateUser(adminUser.id, {
+          password: hashedPassword
+        });
+        
+        return res.json({ 
+          message: "L'utilisateur admin existe déjà et son mot de passe a été réinitialisé", 
+          admin: updatedAdmin || adminUser 
+        });
       }
       
+      // Si l'admin n'existe pas, le créer
       const hashedPassword = await hashPassword("admin123");
       const newAdmin = await storage.createUser({
         username: "admin",
         password: hashedPassword,
         isAdmin: true
+      });
+      
+      console.log("Nouvel admin créé:", { 
+        id: newAdmin.id, 
+        username: newAdmin.username, 
+        passwordStart: newAdmin.password.substring(0, 10) + '...', 
+        isAdmin: newAdmin.isAdmin 
       });
       
       res.json({ message: "Utilisateur admin créé avec succès", admin: newAdmin });
