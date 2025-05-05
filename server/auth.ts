@@ -50,9 +50,18 @@ export function setupAuth(app: Express) {
     store: sessionStore,
     cookie: {
       maxAge: 24 * 60 * 60 * 1000, // 1 jour en millisecondes
-      secure: false // Mettre à true en production si HTTPS
+      secure: false, // Mettre à true en production si HTTPS
+      httpOnly: true,
+      sameSite: 'lax'
     }
   }));
+  
+  // Pour débogage - journaliser les données de session
+  app.use((req, res, next) => {
+    console.log("Session ID:", req.sessionID);
+    console.log("Authentifié:", req.isAuthenticated());
+    next();
+  });
 
   // Initialisation de passport
   app.use(passport.initialize());

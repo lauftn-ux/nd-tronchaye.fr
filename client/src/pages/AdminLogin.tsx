@@ -25,15 +25,17 @@ const AdminLogin = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log("Tentative de connexion depuis l'interface admin avec:", username);
     try {
       await loginMutation.mutateAsync({ username, password });
+      console.log("Login réussi depuis AdminLogin");
       toast({
         title: t("Login successful"),
         description: t("You are now logged in as admin"),
       });
       setLocation("/admin");
     } catch (error) {
-      console.error("Login error:", error);
+      console.error("Login error from AdminLogin:", error);
       toast({
         title: t("Login failed"),
         description: t("Invalid username or password"),
