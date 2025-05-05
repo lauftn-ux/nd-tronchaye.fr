@@ -784,6 +784,116 @@ export default function AdminEvents() {
             )}
           </div>
         </TabsContent>
+        
+        {/* Onglet des photos */}
+        <TabsContent value="photos" className="space-y-4">
+          <div className="flex justify-between items-center">
+            <h2 className="text-xl font-semibold">Photos de la galerie</h2>
+            <Dialog open={showAddPhotoDialog} onOpenChange={(open) => {
+              setShowAddPhotoDialog(open);
+              if (!open) {
+                photoForm.reset();
+              }
+            }}>
+              <DialogTrigger asChild>
+                <Button onClick={() => setShowAddPhotoDialog(true)}>
+                  <ImagePlus className="mr-2 h-4 w-4" />
+                  Ajouter une photo
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[500px]">
+                <DialogHeader>
+                  <DialogTitle>Ajouter une photo</DialogTitle>
+                  <DialogDescription>
+                    Remplissez le formulaire ci-dessous pour ajouter une photo à la galerie.
+                  </DialogDescription>
+                </DialogHeader>
+                <Form {...photoForm}>
+                  <form onSubmit={photoForm.handleSubmit(onSubmitPhoto)} className="space-y-6">
+                    <FormField
+                      control={photoForm.control}
+                      name="title"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Titre</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Titre de la photo" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={photoForm.control}
+                      name="url"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>URL de l'image</FormLabel>
+                          <FormControl>
+                            <Input placeholder="https://exemple.com/image.jpg" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <DialogFooter>
+                      <Button type="submit" disabled={photoForm.formState.isSubmitting}>
+                        Ajouter la photo
+                      </Button>
+                    </DialogFooter>
+                  </form>
+                </Form>
+              </DialogContent>
+            </Dialog>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {photosLoading ? (
+              <p>Chargement des photos...</p>
+            ) : (
+              photos?.map((photo: any) => (
+                <Card key={photo.id} className="overflow-hidden">
+                  <CardHeader className="p-0">
+                    <img
+                      src={photo.url}
+                      alt={photo.title}
+                      className="w-full h-48 object-cover"
+                    />
+                  </CardHeader>
+                  <CardContent className="p-4">
+                    <div className="flex justify-between items-start">
+                      <h3 className="text-lg font-semibold">{photo.title}</h3>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button variant="outline" size="sm">
+                            <Trash className="h-4 w-4 text-destructive" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Êtes-vous sûr ?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Cette action ne peut pas être annulée. Cela supprimera définitivement la photo.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Annuler</AlertDialogCancel>
+                            <AlertDialogAction 
+                              onClick={() => deletePhotoMutation.mutate(photo.id)}
+                              className="bg-destructive text-destructive-foreground"
+                            >
+                              Supprimer
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))
+            )}
+          </div>
+        </TabsContent>
       </Tabs>
     </div>
   );
