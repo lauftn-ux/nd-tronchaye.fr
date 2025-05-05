@@ -18,7 +18,7 @@ export default function ScheduleSection() {
   const { t } = useTranslation();
   
   const { data: specialEvents, isLoading } = useQuery({
-    queryKey: ['/api/events/special'],
+    queryKey: ['/api/events/special/all'],
   });
 
   return (
@@ -134,7 +134,7 @@ export default function ScheduleSection() {
                 ) : (
                   <TableRow>
                     <TableCell colSpan={3} className="text-center py-4">
-                      No special events scheduled
+                      {t('schedule.specialEvents.noEvents', 'No special events scheduled')}
                     </TableCell>
                   </TableRow>
                 )}

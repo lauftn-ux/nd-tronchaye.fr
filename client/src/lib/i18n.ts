@@ -90,7 +90,8 @@ const en = {
       title: 'Special Events',
       date: 'Date',
       event: 'Event',
-      time: 'Time'
+      time: 'Time',
+      noEvents: 'No special events scheduled'
     }
   },
   sacraments: {
@@ -308,7 +309,8 @@ const de = {
       title: 'Besondere Veranstaltungen',
       date: 'Datum',
       event: 'Veranstaltung',
-      time: 'Zeit'
+      time: 'Zeit',
+      noEvents: 'Keine besonderen Veranstaltungen geplant'
     }
   },
   sacraments: {
@@ -526,7 +528,8 @@ const fr = {
       title: 'Événements spéciaux',
       date: 'Date',
       event: 'Événement',
-      time: 'Horaires'
+      time: 'Horaires',
+      noEvents: 'Aucun événement spécial programmé'
     }
   },
   sacraments: {
