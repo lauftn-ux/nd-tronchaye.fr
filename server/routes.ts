@@ -27,6 +27,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Configurer l'authentification
   setupAuth(app);
   
+  // Route temporaire pour initialiser un utilisateur admin
+  app.get("/api/__setup_admin_user__", async (_req: Request, res: Response) => {
+    try {
+      const adminUser = await storage.getUserByUsername("admin");
+      
+      if (adminUser) {
+        return res.json({ message: "L'utilisateur admin existe déjà", admin: adminUser });
+      }
+      
+      const hashedPassword = await hashPassword("admin123");
+      const newAdmin = await storage.createUser({
+        username: "admin",
+        password: hashedPassword,
+        isAdmin: true
+      });
+      
+      res.json({ message: "Utilisateur admin créé avec succès", admin: newAdmin });
+    } catch (error) {
+      console.error("Erreur lors de la création de l'admin:", error);
+      res.status(500).json({ message: "Erreur lors de la création de l'admin" });
+    }
+  });
+  
   // API Routes - all prefixed with /api
   
   // Events API

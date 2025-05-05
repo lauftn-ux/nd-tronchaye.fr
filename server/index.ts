@@ -7,6 +7,31 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static('public'));
 
+// Diagnostic route for testing
+app.get('/api/test-admin-init', async (req, res) => {
+  try {
+    const { storage } = await import('./storage');
+    const { hashPassword } = await import('./auth');
+    
+    const existingAdmin = await storage.getUserByUsername("admin");
+    if (existingAdmin) {
+      return res.json({ message: "Admin user already exists", admin: existingAdmin });
+    }
+    
+    const hashedPassword = await hashPassword("admin123");
+    const newAdmin = await storage.createUser({
+      username: "admin",
+      password: hashedPassword,
+      isAdmin: true
+    });
+    
+    return res.json({ message: "Admin user created successfully", admin: newAdmin });
+  } catch (error) {
+    console.error("Error creating admin:", error);
+    return res.status(500).json({ message: "Error creating admin" });
+  }
+});
+
 app.use((req, res, next) => {
   const start = Date.now();
   const path = req.path;
