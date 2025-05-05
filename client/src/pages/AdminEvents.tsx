@@ -4,7 +4,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import { CalendarIcon, Edit, Trash2, LogOut, Plus } from "lucide-react";
+import { CalendarIcon, Edit, Trash2, LogOut, Plus, Image, ImagePlus, Trash } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 
@@ -88,8 +88,15 @@ const specialEventFormSchema = z.object({
   time: z.string().min(1, "Veuillez spécifier l'heure"),
 });
 
+// Schéma de formulaire pour les photos
+const photoFormSchema = z.object({
+  title: z.string().min(2, "Le titre doit contenir au moins 2 caractères"),
+  url: z.string().url("Veuillez entrer une URL valide"),
+});
+
 type EventFormValues = z.infer<typeof eventFormSchema>;
 type SpecialEventFormValues = z.infer<typeof specialEventFormSchema>;
+type PhotoFormValues = z.infer<typeof photoFormSchema>;
 
 export default function AdminEvents() {
   const { t } = useTranslation();
@@ -97,8 +104,10 @@ export default function AdminEvents() {
   const { logoutMutation } = useAuth();
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [showAddSpecialDialog, setShowAddSpecialDialog] = useState(false);
+  const [showAddPhotoDialog, setShowAddPhotoDialog] = useState(false);
   const [editingEvent, setEditingEvent] = useState<any | null>(null);
   const [editingSpecialEvent, setEditingSpecialEvent] = useState<any | null>(null);
+  const [editingPhoto, setEditingPhoto] = useState<any | null>(null);
 
   // Récupérer les événements
   const { data: events = [], isLoading: eventsLoading } = useQuery({
@@ -108,6 +117,11 @@ export default function AdminEvents() {
   // Récupérer les événements spéciaux
   const { data: specialEvents = [], isLoading: specialEventsLoading } = useQuery({
     queryKey: ['/api/admin/events/special'],
+  });
+  
+  // Récupérer les photos
+  const { data: photos = [], isLoading: photosLoading } = useQuery({
+    queryKey: ['/api/photos'],
   });
 
   // Formulaire pour les événements
@@ -131,6 +145,15 @@ export default function AdminEvents() {
       title: "",
       date: "",
       time: "",
+    },
+  });
+  
+  // Formulaire pour les photos
+  const photoForm = useForm<PhotoFormValues>({
+    resolver: zodResolver(photoFormSchema),
+    defaultValues: {
+      title: "",
+      url: "",
     },
   });
 
@@ -302,6 +325,55 @@ export default function AdminEvents() {
     }
   };
 
+  // Mutations pour les photos
+  const createPhotoMutation = useMutation({
+    mutationFn: async (data: PhotoFormValues) => {
+      const res = await apiRequest("POST", "/api/photos", data);
+      return await res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/photos"] });
+      setShowAddPhotoDialog(false);
+      photoForm.reset();
+      toast({
+        title: "Succès",
+        description: "La photo a été ajoutée avec succès",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors de l'ajout de la photo",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const deletePhotoMutation = useMutation({
+    mutationFn: async (id: number) => {
+      await apiRequest("DELETE", `/api/photos/${id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/photos"] });
+      toast({
+        title: "Succès",
+        description: "La photo a été supprimée avec succès",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors de la suppression de la photo",
+        variant: "destructive",
+      });
+    },
+  });
+  
+  // Soumission du formulaire de photo
+  const onSubmitPhoto = (data: PhotoFormValues) => {
+    createPhotoMutation.mutate(data);
+  };
+
   // Éditer un événement
   const handleEditEvent = (event: any) => {
     setEditingEvent(event);
@@ -342,9 +414,10 @@ export default function AdminEvents() {
       </div>
 
       <Tabs defaultValue="events">
-        <TabsList className="grid w-full grid-cols-2">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="events">Événements</TabsTrigger>
           <TabsTrigger value="special">Événements Spéciaux</TabsTrigger>
+          <TabsTrigger value="photos">Photos de la Galerie</TabsTrigger>
         </TabsList>
 
         {/* Onglet des événements */}

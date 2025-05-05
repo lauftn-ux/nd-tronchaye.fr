@@ -51,7 +51,10 @@ export default function GallerySection() {
       </div>
       
       <div className="text-center mt-10">
-        <Button className="inline-flex items-center px-6 py-3 bg-primary text-white font-semibold rounded hover:bg-opacity-90 transition-all">
+        <Button 
+          className="inline-flex items-center px-6 py-3 bg-primary text-white font-semibold rounded hover:bg-opacity-90 transition-all"
+          onClick={() => window.location.href = "/gallery"}
+        >
           <ImagePlus className="mr-2 h-5 w-5" />
           {t('gallery.viewAll')}
         </Button>
