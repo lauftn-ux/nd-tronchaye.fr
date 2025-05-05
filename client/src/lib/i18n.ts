@@ -179,10 +179,12 @@ const en = {
     title: 'Event Calendar',
     subtitle: 'Check our calendar to not miss any event at the sanctuary.',
     legend: {
+      title: 'Legend',
       sundayMass: 'Sunday Mass',
       religiousFeast: 'Religious Feast',
       nightAdoration: 'Night Adoration'
     },
+    noEventsForDate: 'No events scheduled for this date',
     upcomingEvents: 'Upcoming Events',
     eventManagement: {
       title: 'Event Management',
@@ -395,10 +397,12 @@ const de = {
     title: 'Veranstaltungskalender',
     subtitle: 'Überprüfen Sie unseren Kalender, um keine Veranstaltung im Heiligtum zu verpassen.',
     legend: {
+      title: 'Legende',
       sundayMass: 'Sonntagsmesse',
       religiousFeast: 'Religiöses Fest',
       nightAdoration: 'Nachtanbetung'
     },
+    noEventsForDate: 'Keine Veranstaltungen für diesen Tag geplant',
     upcomingEvents: 'Kommende Veranstaltungen',
     eventManagement: {
       title: 'Veranstaltungsverwaltung',
@@ -611,10 +615,12 @@ const fr = {
     title: 'Calendrier des événements',
     subtitle: 'Consultez notre calendrier pour ne manquer aucun événement au sanctuaire.',
     legend: {
+      title: 'Légende',
       sundayMass: 'Messe dominicale',
       religiousFeast: 'Fête religieuse',
       nightAdoration: 'Adoration nocturne'
     },
+    noEventsForDate: 'Aucun événement prévu à cette date',
     upcomingEvents: 'Événements à venir',
     eventManagement: {
       title: 'Gestion des événements',
