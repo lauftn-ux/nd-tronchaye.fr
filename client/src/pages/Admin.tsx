@@ -21,13 +21,21 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { formatDate, formatTime } from "@/lib/utils";
 import { useLanguage } from "@/context/LanguageContext";
-import { CalendarIcon, Trash2 } from "lucide-react";
+import { CalendarIcon, Trash2, Edit, CheckCircle, XCircle } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { 
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle 
+} from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 
 // Schema for event form
@@ -52,6 +60,8 @@ export default function Admin() {
   const { t } = useTranslation();
   const { language } = useLanguage();
   const [activeTab, setActiveTab] = useState("events");
+  const [editingPhoto, setEditingPhoto] = useState<any>(null);
+  const [editPhotoDialogOpen, setEditPhotoDialogOpen] = useState(false);
   
   const eventForm = useForm<EventFormValues>({
     resolver: zodResolver(eventSchema),
@@ -181,12 +191,65 @@ export default function Admin() {
     },
   });
   
+  // Mutation pour éditer une photo
+  const editPhotoMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: number, data: Partial<PhotoFormValues> }) => {
+      return apiRequest(`/api/photos/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(data),
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/photos'] });
+      setEditPhotoDialogOpen(false);
+      setEditingPhoto(null);
+      toast({
+        title: "Succès",
+        description: "La photo a été mise à jour avec succès",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors de la mise à jour de la photo",
+        variant: "destructive",
+      });
+    },
+  });
+  
   const onEventSubmit = (data: EventFormValues) => {
     addEventMutation.mutate(data);
   };
   
   const onPhotoSubmit = (data: PhotoFormValues) => {
     addPhotoMutation.mutate(data);
+  };
+  
+  // Gestion de l'édition des photos
+  const editPhotoForm = useForm<PhotoFormValues>({
+    resolver: zodResolver(photoSchema),
+    defaultValues: {
+      title: "",
+      url: "",
+    },
+  });
+  
+  const handleEditPhoto = (photo: any) => {
+    setEditingPhoto(photo);
+    editPhotoForm.reset({
+      title: photo.title,
+      url: photo.url,
+    });
+    setEditPhotoDialogOpen(true);
+  };
+  
+  const onEditPhotoSubmit = (data: PhotoFormValues) => {
+    if (editingPhoto) {
+      editPhotoMutation.mutate({
+        id: editingPhoto.id,
+        data,
+      });
+    }
   };
   
   return (
@@ -446,14 +509,25 @@ export default function Admin() {
                 <div className="grid grid-cols-2 gap-4 max-h-[600px] overflow-y-auto pr-2">
                   {photos?.map((photo: any) => (
                     <div key={photo.id} className="bg-white p-2 rounded-lg shadow-md relative group">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="absolute top-2 right-2 text-red-500 hover:text-red-700 opacity-0 group-hover:opacity-100 transition-opacity"
-                        onClick={() => deletePhotoMutation.mutate(photo.id)}
-                      >
-                        <Trash2 size={16} />
-                      </Button>
+                      <div className="absolute top-2 right-2 flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-blue-600 hover:text-blue-800 bg-white/70"
+                          onClick={() => handleEditPhoto(photo)}
+                        >
+                          <Edit size={16} />
+                        </Button>
+                        
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-red-500 hover:text-red-700 bg-white/70"
+                          onClick={() => deletePhotoMutation.mutate(photo.id)}
+                        >
+                          <Trash2 size={16} />
+                        </Button>
+                      </div>
                       
                       <img 
                         src={photo.url} 
