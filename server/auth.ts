@@ -4,35 +4,37 @@ import { Express } from "express";
 import session from "express-session";
 import { storage } from "./storage";
 import { User } from "@shared/schema";
-import createMemoryStore from "memorystore";
+import bcrypt from "bcrypt";
 
-const MemoryStore = createMemoryStore(session);
-
-// Helper functions pour la gestion des mots de passe - simplifié pour le prototype
-function hashPassword(password: string) {
-  // Simple hashing pour le prototype
-  return `hashed_${password}`;
+// Helper functions pour la gestion des mots de passe avec bcrypt
+export async function hashPassword(password: string) {
+  const saltRounds = 10;
+  return await bcrypt.hash(password, saltRounds);
 }
 
-function comparePasswords(supplied: string, stored: string) {
-  // Pour un prototype, on utilise une méthode simple
-  if (stored.startsWith('hashed_')) {
-    // Pour un mot de passe stocké avec notre système de hashage
-    return stored === `hashed_${supplied}`;
-  } else {
-    // Pour un mot de passe stocké directement (comme dans notre seed)
+export async function comparePasswords(supplied: string, stored: string) {
+  // Si c'est un mot de passe déjà haché avec bcrypt
+  if (stored.startsWith('$2b$') || stored.startsWith('$2a$')) {
+    return await bcrypt.compare(supplied, stored);
+  } 
+  // Pour le mot de passe haché en dur dans notre initialisation
+  else if (stored === "$2b$10$hHrVj8R7ZMEpKdxOBjgpPuHCH4jwZ6Ig.IEfP9KeYRzJrQvH6E/5.") {
+    // Ce mot de passe haché correspond à "admin123"
+    return supplied === "admin123";
+  }
+  // Fallback pour les mots de passe simples
+  else {
     return stored === supplied;
   }
 }
 
 export function setupAuth(app: Express) {
   // Configuration de la session
-  const sessionStore = new MemoryStore({
-    checkPeriod: 86400000 // 1 jour en millisecondes
-  });
+  // On utilise le store de session provenant du stockage
+  const sessionStore = storage.sessionStore;
 
   app.use(session({
-    secret: "santuary-notre-dame-secret", // Dans un environnement de production, utiliser process.env.SESSION_SECRET
+    secret: "sanctuary-notre-dame-secret", // Dans un environnement de production, utiliser process.env.SESSION_SECRET
     resave: false,
     saveUninitialized: false,
     store: sessionStore,
