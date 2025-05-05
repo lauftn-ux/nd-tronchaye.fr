@@ -19,7 +19,7 @@ export default function Calendar() {
   });
   
   const { data: specialEvents, isLoading: isLoadingSpecial } = useQuery({
-    queryKey: ['/api/events/special'],
+    queryKey: ['/api/events/special/all'],
   });
   
   const handleBack = () => {

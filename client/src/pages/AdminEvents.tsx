@@ -222,7 +222,7 @@ export default function AdminEvents() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/events/special'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/events/special'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/events/special/all'] });
       setShowAddSpecialDialog(false);
       specialEventForm.reset();
       toast({
@@ -246,7 +246,7 @@ export default function AdminEvents() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/events/special'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/events/special'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/events/special/all'] });
       setEditingSpecialEvent(null);
       specialEventForm.reset();
       toast({
@@ -269,7 +269,7 @@ export default function AdminEvents() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/events/special'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/events/special'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/events/special/all'] });
       toast({
         title: "Succès",
         description: "L'événement spécial a été supprimé avec succès",
