@@ -1,104 +1,91 @@
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { useEffect } from "react";
+import React from "react";
 import { useLocation } from "wouter";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
+import { useToast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useTranslation } from "react-i18next";
 
-const loginSchema = z.object({
-  username: z
-    .string()
-    .min(3, "Le nom d'utilisateur doit contenir au moins 3 caractères"),
-  password: z
-    .string()
-    .min(6, "Le mot de passe doit contenir au moins 6 caractères"),
-});
-
-type LoginFormValues = z.infer<typeof loginSchema>;
-
-export default function AdminLogin() {
+const AdminLogin = () => {
   const { t } = useTranslation();
+  const [username, setUsername] = React.useState("");
+  const [password, setPassword] = React.useState("");
+  const { loginMutation, user } = useAuth();
+  const { toast } = useToast();
   const [, setLocation] = useLocation();
-  const { user, loginMutation } = useAuth();
 
-  // Redirect if user is already logged in
-  useEffect(() => {
+  // Si l'utilisateur est déjà connecté, rediriger vers la page admin
+  React.useEffect(() => {
     if (user) {
       setLocation("/admin");
     }
   }, [user, setLocation]);
 
-  const form = useForm<LoginFormValues>({
-    resolver: zodResolver(loginSchema),
-    defaultValues: {
-      username: "",
-      password: "",
-    },
-  });
-
-  const onSubmit = (data: LoginFormValues) => {
-    loginMutation.mutate(data);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await loginMutation.mutateAsync({ username, password });
+      toast({
+        title: t("Login successful"),
+        description: t("You are now logged in as admin"),
+      });
+      setLocation("/admin");
+    } catch (error) {
+      console.error("Login error:", error);
+      toast({
+        title: t("Login failed"),
+        description: t("Invalid username or password"),
+        variant: "destructive",
+      });
+    }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
-      <Card className="w-full max-w-md shadow-lg">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center">Administration</CardTitle>
-          <CardDescription className="text-center">
-            Connectez-vous pour accéder à l'espace administrateur
+    <div className="min-h-screen flex items-center justify-center bg-background p-4">
+      <Card className="w-full max-w-md">
+        <CardHeader>
+          <CardTitle>{t("Admin Login")}</CardTitle>
+          <CardDescription>
+            {t("Please login to access the admin area")}
           </CardDescription>
         </CardHeader>
-        <CardContent>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <FormField
-                control={form.control}
-                name="username"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Nom d'utilisateur</FormLabel>
-                    <FormControl>
-                      <Input placeholder="admin" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+        <form onSubmit={handleSubmit}>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="username">{t("Username")}</Label>
+              <Input
+                id="username"
+                required
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
               />
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Mot de passe</FormLabel>
-                    <FormControl>
-                      <Input type="password" placeholder="••••••" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="password">{t("Password")}</Label>
+              <Input
+                id="password"
+                type="password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
               />
-              <Button 
-                type="submit" 
-                className="w-full bg-primary" 
-                disabled={loginMutation.isPending}
-              >
-                {loginMutation.isPending ? 'Connexion en cours...' : 'Se connecter'}
-              </Button>
-            </form>
-          </Form>
-        </CardContent>
-        <CardFooter className="flex justify-center text-sm text-muted-foreground">
-          <p>
-            Accès réservé aux administrateurs du sanctuaire.
-          </p>
-        </CardFooter>
+            </div>
+          </CardContent>
+          <CardFooter>
+            <Button 
+              type="submit" 
+              className="w-full"
+              disabled={loginMutation.isPending}
+            >
+              {loginMutation.isPending ? t("Logging in...") : t("Login")}
+            </Button>
+          </CardFooter>
+        </form>
       </Card>
     </div>
   );
-}
+};
+
+export default AdminLogin;

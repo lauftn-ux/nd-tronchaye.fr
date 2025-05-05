@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useAuth } from "@/hooks/use-auth";
+import { Label } from "@/components/ui/label";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -239,14 +241,100 @@ export default function Admin() {
     }
   };
   
+  // Mutation pour se déconnecter
+  const { logoutMutation, user } = useAuth();
+
+  const handleLogout = async () => {
+    try {
+      await logoutMutation.mutateAsync();
+      toast({
+        title: "Déconnexion réussie",
+        description: "Vous êtes maintenant déconnecté"
+      });
+    } catch (error) {
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors de la déconnexion",
+        variant: "destructive"
+      });
+    }
+  };
+
+  // Gestion de la modification des identifiants admin
+  const [isChangingCredentials, setIsChangingCredentials] = useState(false);
+  const [newUsername, setNewUsername] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [currentPassword, setCurrentPassword] = useState("");
+
+  const changeCredentialsMutation = useMutation({
+    mutationFn: async (data: { newUsername: string; newPassword: string; currentPassword: string }) => {
+      return apiRequest("PUT", "/api/admin/credentials", data);
+    },
+    onSuccess: () => {
+      setIsChangingCredentials(false);
+      setNewUsername("");
+      setNewPassword("");
+      setCurrentPassword("");
+      toast({
+        title: "Succès",
+        description: "Vos identifiants ont été mis à jour avec succès. Veuillez vous reconnecter.",
+      });
+      // Déconnexion après changement des identifiants
+      setTimeout(() => logoutMutation.mutate(), 1500);
+    },
+    onError: (error) => {
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors de la mise à jour des identifiants",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleChangeCredentials = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newUsername && !newPassword) {
+      toast({
+        title: "Erreur",
+        description: "Veuillez renseigner au moins un nouveau nom d'utilisateur ou mot de passe",
+        variant: "destructive",
+      });
+      return;
+    }
+    changeCredentialsMutation.mutate({
+      newUsername: newUsername || user?.username || "",
+      newPassword,
+      currentPassword,
+    });
+  };
+
   return (
     <div className="container mx-auto px-4 py-16 mt-20 mb-12">
-      <h1 className="font-cormorant text-3xl md:text-4xl font-semibold text-primary mb-4">
-        Administration
-      </h1>
-      <p className="text-muted-foreground mb-8">
-        Interface d'administration pour gérer le contenu du site.
-      </p>
+      <div className="flex justify-between items-center mb-8">
+        <div>
+          <h1 className="font-cormorant text-3xl md:text-4xl font-semibold text-primary mb-2">
+            Administration
+          </h1>
+          <p className="text-muted-foreground">
+            Interface d'administration pour gérer le contenu du site.
+          </p>
+        </div>
+        <div className="flex space-x-3">
+          <Button 
+            variant="outline" 
+            onClick={() => setIsChangingCredentials(true)}
+          >
+            Modifier les identifiants
+          </Button>
+          <Button 
+            variant="destructive" 
+            onClick={handleLogout}
+            disabled={logoutMutation.isPending}
+          >
+            {logoutMutation.isPending ? "Déconnexion..." : "Se déconnecter"}
+          </Button>
+        </div>
+      </div>
       
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
         <TabsList className="w-full md:w-auto">
@@ -540,6 +628,67 @@ export default function Admin() {
               Modifiez les informations de la photo ci-dessous.
             </DialogDescription>
           </DialogHeader>
+          
+      {/* Modal pour changer les identifiants admin */}
+      <Dialog open={isChangingCredentials} onOpenChange={setIsChangingCredentials}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Modifier vos identifiants</DialogTitle>
+            <DialogDescription>
+              Modifiez votre nom d'utilisateur et/ou mot de passe. Vous devrez vous reconnecter après la modification.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <form onSubmit={handleChangeCredentials} className="space-y-4 mt-4">
+            <div className="space-y-2">
+              <Label htmlFor="currentPassword">Mot de passe actuel</Label>
+              <Input 
+                id="currentPassword" 
+                type="password" 
+                value={currentPassword}
+                onChange={(e) => setCurrentPassword(e.target.value)}
+                required
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="newUsername">Nouveau nom d'utilisateur</Label>
+              <Input 
+                id="newUsername" 
+                value={newUsername}
+                onChange={(e) => setNewUsername(e.target.value)}
+                placeholder={user?.username}
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="newPassword">Nouveau mot de passe</Label>
+              <Input 
+                id="newPassword" 
+                type="password" 
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+              />
+            </div>
+            
+            <DialogFooter>
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={() => setIsChangingCredentials(false)}
+              >
+                Annuler
+              </Button>
+              <Button 
+                type="submit"
+                disabled={!currentPassword || changeCredentialsMutation.isPending || (!newUsername && !newPassword)}
+              >
+                {changeCredentialsMutation.isPending ? "Modification..." : "Enregistrer"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
           
           <Form {...editPhotoForm}>
             <form onSubmit={editPhotoForm.handleSubmit(onEditPhotoSubmit)} className="space-y-4">
