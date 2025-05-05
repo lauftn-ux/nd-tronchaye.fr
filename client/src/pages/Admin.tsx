@@ -83,28 +83,25 @@ export default function Admin() {
   
   // Query to get events
   const { data: events, isLoading: isLoadingEvents } = useQuery({
-    queryKey: ['/api/events'],
+    queryKey: ["/api/events"],
   });
   
   // Query to get photos
   const { data: photos, isLoading: isLoadingPhotos } = useQuery({
-    queryKey: ['/api/photos'],
+    queryKey: ["/api/photos"],
   });
   
   // Mutation to add an event
   const addEventMutation = useMutation({
     mutationFn: async (data: EventFormValues) => {
-      return apiRequest('/api/events', {
-        method: 'POST',
-        body: JSON.stringify({
-          ...data,
-          date: data.date.toISOString().split('T')[0], // Format date
-          featured: false,
-        }),
+      return apiRequest("POST", "/api/events", {
+        ...data,
+        date: data.date.toISOString().split("T")[0], // Format date
+        featured: false,
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/events'] });
+      queryClient.invalidateQueries({ queryKey: ["/api/events"] });
       eventForm.reset();
       toast({
         title: "Succès",
@@ -123,13 +120,10 @@ export default function Admin() {
   // Mutation to add a photo
   const addPhotoMutation = useMutation({
     mutationFn: async (data: PhotoFormValues) => {
-      return apiRequest('/api/photos', {
-        method: 'POST',
-        body: JSON.stringify(data),
-      });
+      return apiRequest("POST", "/api/photos", data);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/photos'] });
+      queryClient.invalidateQueries({ queryKey: ["/api/photos"] });
       photoForm.reset();
       toast({
         title: "Succès",
@@ -148,12 +142,10 @@ export default function Admin() {
   // Mutation to delete an event
   const deleteEventMutation = useMutation({
     mutationFn: async (id: number) => {
-      return apiRequest(`/api/events/${id}`, {
-        method: 'DELETE',
-      });
+      return apiRequest("DELETE", `/api/events/${id}`);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/events'] });
+      queryClient.invalidateQueries({ queryKey: ["/api/events"] });
       toast({
         title: "Succès",
         description: "L'événement a été supprimé avec succès",
@@ -171,12 +163,10 @@ export default function Admin() {
   // Mutation to delete a photo
   const deletePhotoMutation = useMutation({
     mutationFn: async (id: number) => {
-      return apiRequest(`/api/photos/${id}`, {
-        method: 'DELETE',
-      });
+      return apiRequest("DELETE", `/api/photos/${id}`);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/photos'] });
+      queryClient.invalidateQueries({ queryKey: ["/api/photos"] });
       toast({
         title: "Succès",
         description: "La photo a été supprimée avec succès",
@@ -194,13 +184,10 @@ export default function Admin() {
   // Mutation pour éditer une photo
   const editPhotoMutation = useMutation({
     mutationFn: async ({ id, data }: { id: number, data: Partial<PhotoFormValues> }) => {
-      return apiRequest(`/api/photos/${id}`, {
-        method: 'PUT',
-        body: JSON.stringify(data),
-      });
+      return apiRequest("PUT", `/api/photos/${id}`, data);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/photos'] });
+      queryClient.invalidateQueries({ queryKey: ["/api/photos"] });
       setEditPhotoDialogOpen(false);
       setEditingPhoto(null);
       toast({
@@ -543,6 +530,66 @@ export default function Admin() {
           </div>
         </TabsContent>
       </Tabs>
+      
+      {/* Modal d'édition de photo */}
+      <Dialog open={editPhotoDialogOpen} onOpenChange={setEditPhotoDialogOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Modifier la photo</DialogTitle>
+            <DialogDescription>
+              Modifiez les informations de la photo ci-dessous.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <Form {...editPhotoForm}>
+            <form onSubmit={editPhotoForm.handleSubmit(onEditPhotoSubmit)} className="space-y-4">
+              <FormField
+                control={editPhotoForm.control}
+                name="title"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Titre</FormLabel>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={editPhotoForm.control}
+                name="url"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>URL de l'image</FormLabel>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <DialogFooter>
+                <Button 
+                  variant="outline" 
+                  onClick={() => setEditPhotoDialogOpen(false)}
+                  type="button"
+                >
+                  Annuler
+                </Button>
+                <Button 
+                  type="submit" 
+                  disabled={editPhotoMutation.isPending}
+                >
+                  {editPhotoMutation.isPending ? "Enregistrement..." : "Enregistrer"}
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
