@@ -44,12 +44,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     queryFn: async () => {
       try {
         console.log("Vérification de la session utilisateur...");
-        const res = await fetch("/api/user", {
+        
+        // Récupérer le sessionID de localStorage si disponible
+        const savedSessionId = localStorage.getItem('authSessionID');
+        console.log("Session ID stocké localement:", savedSessionId);
+        
+        const headers: HeadersInit = {
+          "Cache-Control": "no-cache", // Évite la mise en cache de la requête
+        };
+        
+        // Si un sessionID est stocké localement, l'ajouter aux headers
+        if (savedSessionId) {
+          headers["Cookie"] = `auth.sid=${savedSessionId}`;
+        }
+        
+        // Préparer l'URL avec le sessionID en paramètre si disponible
+        let url = "/api/user";
+        if (savedSessionId) {
+          url = `/api/user?sessionId=${encodeURIComponent(savedSessionId)}`;
+        }
+        
+        const res = await fetch(url, {
           method: "GET",
           credentials: "include", // Important pour envoyer les cookies
-          headers: {
-            "Cache-Control": "no-cache", // Évite la mise en cache de la requête
-          },
+          headers,
         });
         
         if (res.status === 401) {
@@ -77,6 +95,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Fonction pour vérifier l'état de la session
   const checkSession = async () => {
     console.log("Vérification de la session en cours...");
+    
+    // Vérifier s'il existe un sessionID dans le localStorage
+    const savedSessionId = localStorage.getItem('authSessionID');
+    if (savedSessionId) {
+      console.log("Session ID trouvé dans le stockage local:", savedSessionId);
+      // Mettre à jour le cookie manuellement
+      document.cookie = `auth.sid=${savedSessionId}; path=/; max-age=86400; SameSite=Lax`;
+    }
+    
     await refetch();
   };
 
@@ -101,6 +128,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         
         const userData = await res.json();
         console.log("Login réussi, données reçues:", userData);
+        
+        // Si le serveur a renvoyé un sessionID, l'enregistrer dans le stockage local
+        if (userData.sessionID) {
+          console.log("ID de session reçu du serveur:", userData.sessionID);
+          localStorage.setItem('authSessionID', userData.sessionID);
+          
+          // Mettre un cookie manuellement (solution alternative)
+          document.cookie = `auth.sid=${userData.sessionID}; path=/; max-age=86400; SameSite=Lax`;
+        }
+        
         return userData;
       } catch (err) {
         console.error("Exception lors de la connexion:", err);
@@ -109,8 +146,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     },
     onSuccess: async (user: User) => {
       console.log("Login mutation succès:", user);
+      // Supprimer le sessionID de l'objet utilisateur avant de le mettre en cache
+      const { sessionID, ...userWithoutSession } = user as any;
+      
       // Mettre à jour le cache avec les données utilisateur
-      queryClient.setQueryData(['/api/user'], user);
+      queryClient.setQueryData(['/api/user'], userWithoutSession);
+      
       // Force une vérification de la session après la connexion
       await checkSession();
       

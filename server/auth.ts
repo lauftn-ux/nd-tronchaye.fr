@@ -48,11 +48,12 @@ export function setupAuth(app: Express) {
     resave: true,
     saveUninitialized: true,
     store: sessionStore,
+    name: "auth.sid", // Nom personnalisé pour le cookie de session
     cookie: {
       maxAge: 24 * 60 * 60 * 1000, // 1 jour en millisecondes
       secure: false, // Mettre à true en production si HTTPS
       httpOnly: true,
-      sameSite: 'lax',
+      sameSite: 'none', // Permet les requêtes cross-origin
       path: '/' 
     }
   }));
@@ -150,13 +151,27 @@ export function setupAuth(app: Express) {
         console.log("Authentification échouée pour:", req.body.username);
         return res.status(401).json({ message: "Nom d'utilisateur ou mot de passe incorrect" });
       }
+      
       req.login(user, (loginErr) => {
         if (loginErr) {
           console.error("Erreur lors de l'initialisation de la session:", loginErr);
           return next(loginErr);
         }
-        console.log("Authentification réussie et session créée pour:", user.username);
-        return res.json(user);
+        
+        // Après l'authentification réussie, s'assurer que la session est enregistrée
+        req.session.save((err) => {
+          if (err) {
+            console.error("Erreur lors de l'enregistrement de la session:", err);
+            return next(err);
+          }
+          
+          console.log("Session enregistrée avec succès, ID:", req.sessionID);
+          console.log("Authentification réussie et session créée pour:", user.username);
+          
+          // Envoyer les détails de la session au client
+          const userResponse = { ...user, sessionID: req.sessionID };
+          return res.json(userResponse);
+        });
       });
     })(req, res, next);
   });
@@ -170,11 +185,46 @@ export function setupAuth(app: Express) {
     });
   });
 
-  app.get("/api/user", (req, res) => {
+  app.get("/api/user", async (req, res) => {
     // Si l'utilisateur est authentifié, retourner les informations de l'utilisateur
     if (req.isAuthenticated()) {
       return res.json(req.user);
     }
+    
+    // Solution de secours: vérifier si un ID de session est fourni comme paramètre de requête
+    const sessionIdFromQuery = req.query.sessionId as string;
+    if (sessionIdFromQuery) {
+      console.log("Session ID reçu via paramètre:", sessionIdFromQuery);
+      
+      try {
+        // Tenter de récupérer la session à partir de l'ID fourni
+        const userId = await new Promise<number | null>((resolve) => {
+          // @ts-ignore - Accès aux propriétés internes de sessionStore
+          req.sessionStore.get(sessionIdFromQuery, (err: any, session: any) => {
+            if (err || !session || !session.passport || !session.passport.user) {
+              console.log("Impossible de récupérer la session ou pas d'utilisateur dans la session");
+              resolve(null);
+              return;
+            }
+            
+            console.log("Session trouvée avec utilisateur:", session.passport.user);
+            resolve(session.passport.user);
+          });
+        });
+        
+        if (userId) {
+          // Récupérer les informations de l'utilisateur à partir de son ID
+          const user = await storage.getUser(userId);
+          if (user) {
+            console.log("Utilisateur récupéré depuis le paramètre de session:", user.username);
+            return res.json(user);
+          }
+        }
+      } catch (error) {
+        console.error("Erreur lors de la récupération de la session par ID:", error);
+      }
+    }
+    
     // Sinon, erreur 401 Unauthorized
     res.status(401).json({ message: "Non authentifié" });
   });
