@@ -1,4 +1,4 @@
-import { createContext, ReactNode, useContext } from "react";
+import { createContext, ReactNode, useContext, useEffect } from "react";
 import {
   useQuery,
   useMutation,
@@ -15,6 +15,7 @@ type AuthContextType = {
   loginMutation: UseMutationResult<User, Error, LoginData>;
   logoutMutation: UseMutationResult<void, Error, void>;
   registerMutation: UseMutationResult<User, Error, RegisterData>;
+  checkSession: () => Promise<void>;
 };
 
 type LoginData = {
@@ -32,24 +33,64 @@ export const AuthContext = createContext<AuthContextType | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const { toast } = useToast();
   
+  // Notre requête principale pour récupérer les informations de l'utilisateur
   const {
     data: user,
     error,
     isLoading,
+    refetch,
   } = useQuery<User | null, Error>({
     queryKey: ['/api/user'],
-    queryFn: getQueryFn({ on401: "returnNull" }),
+    queryFn: async () => {
+      try {
+        console.log("Vérification de la session utilisateur...");
+        const res = await fetch("/api/user", {
+          method: "GET",
+          credentials: "include", // Important pour envoyer les cookies
+          headers: {
+            "Cache-Control": "no-cache", // Évite la mise en cache de la requête
+          },
+        });
+        
+        if (res.status === 401) {
+          console.log("Utilisateur non authentifié");
+          return null;
+        }
+        
+        if (!res.ok) {
+          throw new Error(`Erreur réseau: ${res.status}`);
+        }
+        
+        const userData = await res.json();
+        console.log("Session utilisateur récupérée avec succès:", userData);
+        return userData;
+      } catch (err) {
+        console.error("Erreur lors de la récupération de la session:", err);
+        return null;
+      }
+    },
+    staleTime: 0, // Toujours considérer les données comme périmées
+    retry: false, // Ne pas réessayer en cas d'échec
+    refetchOnWindowFocus: true, // Actualiser quand l'utilisateur revient sur la page
   });
+  
+  // Fonction pour vérifier l'état de la session
+  const checkSession = async () => {
+    console.log("Vérification de la session en cours...");
+    await refetch();
+  };
 
+  // Mutation pour la connexion
   const loginMutation = useMutation({
     mutationFn: async (credentials: LoginData) => {
       console.log("Tentative de connexion avec:", credentials.username);
       try {
+        // Utilisation de fetch directement pour avoir plus de contrôle
         const res = await fetch("/api/login", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(credentials),
-          credentials: "include",
+          credentials: "include", // Crucial pour stocker les cookies
         });
         
         if (!res.ok) {
@@ -66,9 +107,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         throw err;
       }
     },
-    onSuccess: (user: User) => {
+    onSuccess: async (user: User) => {
       console.log("Login mutation succès:", user);
+      // Mettre à jour le cache avec les données utilisateur
       queryClient.setQueryData(['/api/user'], user);
+      // Force une vérification de la session après la connexion
+      await checkSession();
+      
       toast({
         title: "Connexion réussie",
         description: "Vous êtes maintenant connecté.",
@@ -84,6 +129,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     },
   });
 
+  // Mutation pour l'inscription
   const registerMutation = useMutation({
     mutationFn: async (credentials: RegisterData) => {
       const res = await apiRequest("POST", "/api/register", credentials);
@@ -105,6 +151,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     },
   });
 
+  // Mutation pour la déconnexion
   const logoutMutation = useMutation({
     mutationFn: async () => {
       await apiRequest("POST", "/api/logout");
@@ -124,6 +171,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
     },
   });
+  
+  // Vérifier la session au chargement initial
+  useEffect(() => {
+    checkSession();
+  }, []);
 
   return (
     <AuthContext.Provider
@@ -134,6 +186,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         loginMutation,
         logoutMutation,
         registerMutation,
+        checkSession,
       }}
     >
       {children}
