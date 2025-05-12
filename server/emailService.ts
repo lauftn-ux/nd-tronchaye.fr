@@ -52,9 +52,12 @@ export async function sendContactFormEmail(
     <p>${message.replace(/\n/g, '<br>')}</p>
   `;
   
+  const senderEmail = process.env.SENDGRID_VERIFIED_SENDER || 'noreply@example.com';
+  console.log(`Envoi de l'email depuis l'adresse vérifiée: ${senderEmail} vers ${recipientEmail}`);
+  
   return sendEmail({
     to: recipientEmail,
-    from: 'noreply@notredamedetronchaye.fr', // Doit être validé dans SendGrid
+    from: senderEmail, // Utilise l'adresse vérifiée dans SendGrid
     subject: emailSubject,
     content: [
       {
