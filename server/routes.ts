@@ -6,6 +6,7 @@ import multer from "multer";
 import { insertContactMessageSchema, insertEventSchema, insertPhotoSchema, insertSpecialEventSchema, insertSubscriberSchema } from "@shared/schema";
 import { ZodError } from "zod";
 import { fromZodError } from "zod-validation-error";
+import { sendContactFormEmail } from "./emailService";
 
 // Configure multer for file uploads
 const upload = multer({
@@ -297,13 +298,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/contact", async (req: Request, res: Response) => {
     try {
       const validatedData = insertContactMessageSchema.parse(req.body);
+      
+      // Enregistrer le message dans la base de données
       const newMessage = await storage.createContactMessage(validatedData);
-      res.status(201).json({ success: true, message: "Message sent successfully" });
+      
+      // Envoyer le message par email
+      const emailSent = await sendContactFormEmail(
+        validatedData.name,
+        validatedData.email,
+        validatedData.subject,
+        validatedData.message
+      );
+      
+      if (!emailSent) {
+        console.warn("L'email n'a pas pu être envoyé, mais le message a été enregistré dans la base de données");
+      }
+      
+      res.status(201).json({ 
+        success: true, 
+        message: "Message sent successfully",
+        emailSent: emailSent
+      });
     } catch (error) {
       if (error instanceof ZodError) {
         const validationError = fromZodError(error);
         return res.status(400).json({ message: validationError.message });
       }
+      console.error("Erreur lors de l'envoi du message:", error);
       res.status(500).json({ message: "Failed to send message" });
     }
   });
