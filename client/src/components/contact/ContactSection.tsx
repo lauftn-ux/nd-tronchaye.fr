@@ -115,7 +115,7 @@ export default function ContactSection() {
                 <Mail className="text-secondary mt-1 mr-3 h-5 w-5" />
                 <div>
                   <h4 className="font-semibold">{t('contact.contactInfo.email')}</h4>
-                  <p className="text-sm">contact@notredamedetronchaye.fr</p>
+                  <p className="text-sm">sanctuaire@nd-tronchaye.fr</p>
                 </div>
               </div>
             </div>
