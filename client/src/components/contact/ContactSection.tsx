@@ -58,15 +58,15 @@ export default function ContactSection() {
     },
     onSuccess: () => {
       toast({
-        title: "Success",
-        description: "Your message has been sent. We'll get back to you soon.",
+        title: "Succès",
+        description: "Votre message a bien été envoyé. Nous vous répondrons bientôt.",
       });
       form.reset();
     },
     onError: (error) => {
       toast({
-        title: "Error",
-        description: `Failed to send message: ${error.message}`,
+        title: "Erreur",
+        description: `Échec de l'envoi du message : ${error.message}`,
         variant: "destructive",
       });
     },
@@ -261,7 +261,7 @@ export default function ContactSection() {
                   className="w-full px-4 py-2 bg-primary text-white rounded hover:bg-opacity-90 transition-all"
                   disabled={contactMutation.isPending}
                 >
-                  {contactMutation.isPending ? "Sending..." : t('contact.form.send')}
+                  {contactMutation.isPending ? "Envoi en cours..." : t('contact.form.send')}
                 </Button>
               </form>
             </Form>

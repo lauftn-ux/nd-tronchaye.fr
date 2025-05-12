@@ -31,14 +31,37 @@ export async function sendContactFormEmail(
   message: string,
   recipientEmail: string = 'sanctuaire@nd-tronchaye.fr'
 ): Promise<boolean> {
-  const emailSubject = `[Contact Notre Dame de la Tronchaye] ${subject}`;
+  // Traduction des sujets en français
+  let frenchSubject = subject;
+  switch(subject) {
+    case 'information':
+      frenchSubject = 'Demande d\'information';
+      break;
+    case 'baptism':
+      frenchSubject = 'Préparation au baptême';
+      break;
+    case 'marriage':
+      frenchSubject = 'Préparation au mariage';
+      break;
+    case 'mass':
+      frenchSubject = 'Demande de messe';
+      break;
+    case 'visit':
+      frenchSubject = 'Organisation d\'une visite';
+      break;
+    case 'other':
+      frenchSubject = 'Autre demande';
+      break;
+  }
+  
+  const emailSubject = `[Contact Notre Dame de la Tronchaye] ${frenchSubject}`;
   
   // Corps du message en HTML et texte brut
   const textContent = `
     Nouveau message de contact du site Notre Dame de la Tronchaye
     
     De : ${name} (${email})
-    Sujet : ${subject}
+    Sujet : ${frenchSubject}
     
     Message :
     ${message}
@@ -47,7 +70,7 @@ export async function sendContactFormEmail(
   const htmlContent = `
     <h2>Nouveau message de contact du site Notre Dame de la Tronchaye</h2>
     <p><strong>De :</strong> ${name} (${email})</p>
-    <p><strong>Sujet :</strong> ${subject}</p>
+    <p><strong>Sujet :</strong> ${frenchSubject}</p>
     <h3>Message :</h3>
     <p>${message.replace(/\n/g, '<br>')}</p>
   `;
