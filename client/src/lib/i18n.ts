@@ -43,6 +43,27 @@ const en = {
   },
   history: {
     title: 'Our History',
+    pageHeading: 'History of the Sanctuary',
+    pageDescription: 'Discover the rich and spiritual history of the Sanctuary of Notre Dame de la Tronchaye through the centuries.',
+    timeline: {
+      title: 'Historical Timeline',
+      discovery: 'Discovery',
+      discoveryText: 'According to tradition, the statue of Notre Dame de la Tronchaye was discovered in the trunk of an oak tree in the 12th century.',
+      construction: 'Construction',
+      constructionText: 'Building of the first sanctuary around the miraculous statue.',
+      revolution: 'French Revolution',
+      revolutionText: 'Difficult period during which the sanctuary suffered significant damage.',
+      restoration: 'Restoration',
+      restorationText: 'Major restoration campaigns that restored the sanctuary to its splendor.',
+      coronation: 'Coronation',
+      coronationText: 'Solemn coronation of the statue of Notre Dame de la Tronchaye.'
+    },
+    spiritualSignificance: {
+      title: 'Spiritual Significance',
+      paragraph1: 'The Sanctuary of Notre Dame de la Tronchaye holds a special place in the hearts of Breton faithful.',
+      paragraph2: 'A place of pilgrimage and Marian devotion, it continues to welcome the prayers and hopes of thousands of visitors each year.',
+      quote: 'A sanctuary where faith, history and Breton tradition meet'
+    },
     origins: {
       title: 'Origins of the sanctuary',
       paragraph1: 'According to tradition, the statue of Notre Dame de la Tronchaye was discovered in the trunk of an oak tree in the 12th century, giving rise to the sanctuary and its name.',
@@ -137,6 +158,8 @@ const en = {
   },
   gallery: {
     title: 'Photo Gallery',
+    pageHeading: 'Photo Gallery',
+    pageDescription: 'Discover the sanctuary through our collection of photographs.',
     subtitle: 'Discover the sanctuary through our collection of photographs.',
     viewAll: 'View all photos',
     uploadSection: {
@@ -262,6 +285,27 @@ const de = {
   },
   history: {
     title: 'Unsere Geschichte',
+    pageHeading: 'Geschichte des Heiligtums',
+    pageDescription: 'Entdecken Sie die reiche und spirituelle Geschichte des Heiligtums Notre Dame de la Tronchaye durch die Jahrhunderte.',
+    timeline: {
+      title: 'Historische Zeitleiste',
+      discovery: 'Entdeckung',
+      discoveryText: 'Der Überlieferung nach wurde die Statue von Notre Dame de la Tronchaye im 12. Jahrhundert im Stamm einer Eiche entdeckt.',
+      construction: 'Bau',
+      constructionText: 'Errichtung des ersten Heiligtums um die wundertätige Statue.',
+      revolution: 'Französische Revolution',
+      revolutionText: 'Schwierige Zeit, in der das Heiligtum erhebliche Schäden erlitt.',
+      restoration: 'Restaurierung',
+      restorationText: 'Große Restaurierungskampagnen, die dem Heiligtum seine Pracht zurückgaben.',
+      coronation: 'Krönung',
+      coronationText: 'Feierliche Krönung der Statue von Notre Dame de la Tronchaye.'
+    },
+    spiritualSignificance: {
+      title: 'Spirituelle Bedeutung',
+      paragraph1: 'Das Heiligtum Notre Dame de la Tronchaye nimmt einen besonderen Platz in den Herzen der bretonischen Gläubigen ein.',
+      paragraph2: 'Als Ort der Pilgerfahrt und marianischen Verehrung empfängt es weiterhin die Gebete und Hoffnungen von Tausenden von Besuchern jedes Jahr.',
+      quote: 'Ein Heiligtum, wo sich Glaube, Geschichte und bretonische Tradition treffen'
+    },
     origins: {
       title: 'Ursprünge des Heiligtums',
       paragraph1: 'Der Überlieferung nach wurde die Statue von Notre Dame de la Tronchaye im 12. Jahrhundert im Stamm einer Eiche entdeckt, was dem Heiligtum seinen Namen gab.',
@@ -356,6 +400,8 @@ const de = {
   },
   gallery: {
     title: 'Fotogalerie',
+    pageHeading: 'Fotogalerie',
+    pageDescription: 'Entdecken Sie das Heiligtum durch unsere Fotosammlung.',
     subtitle: 'Entdecken Sie das Heiligtum durch unsere Fotosammlung.',
     viewAll: 'Alle Fotos anzeigen',
     uploadSection: {
@@ -481,6 +527,27 @@ const fr = {
   },
   history: {
     title: 'Notre Histoire',
+    pageHeading: 'Histoire du Sanctuaire',
+    pageDescription: 'Découvrez l\'histoire riche et spirituelle du Sanctuaire Notre Dame de la Tronchaye à travers les siècles.',
+    timeline: {
+      title: 'Chronologie historique',
+      discovery: 'Découverte',
+      discoveryText: 'Selon la tradition, la statue de Notre Dame de la Tronchaye aurait été découverte dans le tronc d\'un chêne au XIIe siècle.',
+      construction: 'Construction',
+      constructionText: 'Édification du premier sanctuaire autour de la statue miraculeuse.',
+      revolution: 'Révolution française',
+      revolutionText: 'Période difficile durant laquelle le sanctuaire a subi des dommages importants.',
+      restoration: 'Restauration',
+      restorationText: 'Grandes campagnes de restauration qui ont redonné au sanctuaire sa splendeur.',
+      coronation: 'Couronnement',
+      coronationText: 'Couronnement solennel de la statue de Notre Dame de la Tronchaye.'
+    },
+    spiritualSignificance: {
+      title: 'Signification spirituelle',
+      paragraph1: 'Le Sanctuaire Notre Dame de la Tronchaye occupe une place particulière dans le cœur des fidèles bretons.',
+      paragraph2: 'Lieu de pèlerinage et de dévotion mariale, il continue d\'accueillir les prières et les espérances de milliers de visiteurs chaque année.',
+      quote: 'Un sanctuaire où se rencontrent foi, histoire et tradition bretonne'
+    },
     origins: {
       title: 'Les origines du sanctuaire',
       paragraph1: 'Selon la tradition, la statue de Notre Dame de la Tronchaye aurait été découverte dans le tronc d\'un chêne au XIIe siècle, donnant ainsi naissance au sanctuaire et à son nom.',
@@ -575,6 +642,8 @@ const fr = {
   },
   gallery: {
     title: 'Galerie Photos',
+    pageHeading: 'Galerie Photos',
+    pageDescription: 'Découvrez le sanctuaire à travers notre collection de photographies.',
     subtitle: 'Découvrez le sanctuaire à travers notre collection de photographies.',
     viewAll: 'Voir toutes les photos',
     uploadSection: {
