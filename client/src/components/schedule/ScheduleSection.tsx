@@ -84,13 +84,17 @@ export default function ScheduleSection() {
                 <span className="font-semibold">{t('schedule.confessions.thursday')}</span>
                 <span className="bg-stone px-3 py-1 rounded-full">{t('schedule.confessions.thursdayTime')}</span>
               </li>
-              <li className="flex items-center justify-between">
+              <li className="flex items-center justify-between pb-3 border-b border-gray-200">
                 <span className="font-semibold">
                   {t('schedule.confessions.nightAdoration')}
                   <br />
                   <small>{t('schedule.confessions.nightAdorationDay')}</small>
                 </span>
                 <span className="bg-stone px-3 py-1 rounded-full">{t('schedule.confessions.nightAdorationTime')}</span>
+              </li>
+              <li className="flex items-center justify-between">
+                <span className="font-semibold">{t('schedule.confessions.rosary')}</span>
+                <span className="bg-stone px-3 py-1 rounded-full">{t('schedule.confessions.rosaryTime')}</span>
               </li>
             </ul>
           </div>

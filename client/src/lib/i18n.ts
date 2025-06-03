@@ -105,7 +105,9 @@ const en = {
       thursdayTime: 'After 6:00 PM Mass',
       nightAdoration: 'Night Adoration',
       nightAdorationDay: '(1st and 3rd Friday of the month)',
-      nightAdorationTime: '8:00 PM - 11:00 PM'
+      nightAdorationTime: '8:00 PM - 11:00 PM',
+      rosary: 'Rosary every Saturday',
+      rosaryTime: 'After Mass (~9:45 AM)'
     },
     specialEvents: {
       title: 'Special Events',
@@ -347,7 +349,9 @@ const de = {
       thursdayTime: 'Nach der 18:00 Uhr Messe',
       nightAdoration: 'Nachtanbetung',
       nightAdorationDay: '(1. und 3. Freitag des Monats)',
-      nightAdorationTime: '20:00 - 23:00 Uhr'
+      nightAdorationTime: '20:00 - 23:00 Uhr',
+      rosary: 'Rosenkranz jeden Samstag',
+      rosaryTime: 'Nach der Messe (~9:45 Uhr)'
     },
     specialEvents: {
       title: 'Besondere Veranstaltungen',
@@ -589,7 +593,9 @@ const fr = {
       thursdayTime: 'Après la messe de 18h',
       nightAdoration: 'Adoration nocturne',
       nightAdorationDay: '(1er et 3ème vendredi du mois)',
-      nightAdorationTime: '20h00 - 23h00'
+      nightAdorationTime: '20h00 - 23h00',
+      rosary: 'Chapelet tous les samedis',
+      rosaryTime: 'Après la messe (~9h45)'
     },
     specialEvents: {
       title: 'Événements spéciaux',
