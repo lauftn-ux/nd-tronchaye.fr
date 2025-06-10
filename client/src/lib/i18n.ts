@@ -156,7 +156,9 @@ const en = {
     subtitle: 'Discover upcoming events at the Sanctuary of Notre Dame de la Tronchaye.',
     viewAll: 'View all events',
     date: 'Date',
-    time: 'Time'
+    time: 'Time',
+    relatedEvents: 'Related Events',
+    interestedInEvent: 'Interested in this event?'
   },
   gallery: {
     title: 'Photo Gallery',
@@ -400,7 +402,9 @@ const de = {
     subtitle: 'Entdecken Sie kommende Veranstaltungen im Heiligtum Notre Dame de la Tronchaye.',
     viewAll: 'Alle Veranstaltungen anzeigen',
     date: 'Datum',
-    time: 'Zeit'
+    time: 'Zeit',
+    relatedEvents: 'Ähnliche Veranstaltungen',
+    interestedInEvent: 'Interessiert an dieser Veranstaltung?'
   },
   gallery: {
     title: 'Fotogalerie',
@@ -644,7 +648,9 @@ const fr = {
     subtitle: 'Découvrez les événements à venir au Sanctuaire Notre Dame de la Tronchaye.',
     viewAll: 'Voir tous les événements',
     date: 'Date',
-    time: 'Heure'
+    time: 'Heure',
+    relatedEvents: 'Événements similaires',
+    interestedInEvent: 'Intéressé par cet événement ?'
   },
   gallery: {
     title: 'Galerie Photos',
