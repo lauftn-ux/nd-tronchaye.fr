@@ -514,12 +514,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { currentPassword, newUsername, newPassword } = req.body;
       
       // Vérifier que l'utilisateur actuel est bien authentifié
-      if (!req.user || !req.user.id) {
+      if (!req.user || !('id' in req.user) || !req.user.id) {
         return res.status(401).json({ message: "Non authentifié" });
       }
       
       // Récupérer l'utilisateur actuel
-      const userId = req.user.id;
+      const userId = (req.user as any).id;
       const user = await storage.getUser(userId);
       
       if (!user) {

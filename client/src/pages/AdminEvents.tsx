@@ -110,17 +110,17 @@ export default function AdminEvents() {
   const [editingPhoto, setEditingPhoto] = useState<any | null>(null);
 
   // Récupérer les événements
-  const { data: events = [], isLoading: eventsLoading } = useQuery({
+  const { data: events = [], isLoading: eventsLoading } = useQuery<any[]>({
     queryKey: ['/api/admin/events'],
   });
 
   // Récupérer les événements spéciaux
-  const { data: specialEvents = [], isLoading: specialEventsLoading } = useQuery({
+  const { data: specialEvents = [], isLoading: specialEventsLoading } = useQuery<any[]>({
     queryKey: ['/api/admin/events/special'],
   });
   
   // Récupérer les photos
-  const { data: photos = [], isLoading: photosLoading } = useQuery({
+  const { data: photos = [], isLoading: photosLoading } = useQuery<any[]>({
     queryKey: ['/api/photos'],
   });
 
@@ -307,24 +307,6 @@ export default function AdminEvents() {
     },
   });
 
-  // Soumission du formulaire d'événement
-  const onSubmitEvent = (data: EventFormValues) => {
-    if (editingEvent) {
-      updateEventMutation.mutate({ id: editingEvent.id, data });
-    } else {
-      createEventMutation.mutate(data);
-    }
-  };
-
-  // Soumission du formulaire d'événement spécial
-  const onSubmitSpecialEvent = (data: SpecialEventFormValues) => {
-    if (editingSpecialEvent) {
-      updateSpecialEventMutation.mutate({ id: editingSpecialEvent.id, data });
-    } else {
-      createSpecialEventMutation.mutate(data);
-    }
-  };
-
   // Mutations pour les photos
   const createPhotoMutation = useMutation({
     mutationFn: async (data: PhotoFormValues) => {
@@ -369,6 +351,24 @@ export default function AdminEvents() {
     },
   });
   
+  // Soumission du formulaire d'événement
+  const onSubmitEvent = (data: EventFormValues) => {
+    if (editingEvent) {
+      updateEventMutation.mutate({ id: editingEvent.id, data });
+    } else {
+      createEventMutation.mutate(data);
+    }
+  };
+
+  // Soumission du formulaire d'événement spécial
+  const onSubmitSpecialEvent = (data: SpecialEventFormValues) => {
+    if (editingSpecialEvent) {
+      updateSpecialEventMutation.mutate({ id: editingSpecialEvent.id, data });
+    } else {
+      createSpecialEventMutation.mutate(data);
+    }
+  };
+
   // Soumission du formulaire de photo
   const onSubmitPhoto = (data: PhotoFormValues) => {
     createPhotoMutation.mutate(data);
