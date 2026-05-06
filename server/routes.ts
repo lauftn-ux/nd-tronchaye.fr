@@ -1,81 +1,40 @@
 import type { Express, Request, Response, NextFunction } from "express";
-import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { setupAuth, isAdmin, comparePasswords, hashPassword } from "./auth";
+import { setupAuth, comparePasswords, hashPassword } from "./auth";
 import multer from "multer";
-import { insertContactMessageSchema, insertEventSchema, insertPhotoSchema, insertSpecialEventSchema, insertSubscriberSchema } from "@shared/schema";
+import { insertContactMessageSchema, insertEventSchema, insertPhotoSchema, insertSpecialEventSchema, insertSubscriberSchema, User } from "@shared/schema";
 import { ZodError } from "zod";
 import { fromZodError } from "zod-validation-error";
 import { sendContactFormEmail } from "./emailService";
+import { uploadPhotoToBucket } from "./supabaseStorage";
 
-// Configure multer for file uploads
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: {
-    fileSize: 5 * 1024 * 1024, // 5MB limit
+    fileSize: 5 * 1024 * 1024,
   },
   fileFilter: (_req, file, cb) => {
-    // Accept only images
-    if (file.mimetype.startsWith('image/')) {
+    if (file.mimetype.startsWith("image/")) {
       cb(null, true);
     } else {
-      cb(new Error('Only image files are allowed'));
+      cb(new Error("Only image files are allowed"));
     }
   },
 });
 
-export async function registerRoutes(app: Express): Promise<Server> {
-  // Configurer l'authentification
+function requireAdmin(req: Request, res: Response, next: NextFunction) {
+  if (!req.isAuthenticated()) {
+    return res.status(401).json({ message: "Non authentifié" });
+  }
+  if (!(req.user as User | undefined)?.isAdmin) {
+    return res.status(403).json({ message: "Accès refusé" });
+  }
+  next();
+}
+
+export async function registerRoutes(app: Express): Promise<void> {
   setupAuth(app);
-  
-  // Route temporaire pour initialiser un utilisateur admin
-  app.get("/api/__setup_admin_user__", async (_req: Request, res: Response) => {
-    try {
-      const adminUser = await storage.getUserByUsername("admin");
-      
-      if (adminUser) {
-        // Si l'utilisateur admin existe déjà, vérifier que nous pouvons nous connecter avec
-        console.log("Utilisateur admin existant trouvé:", { 
-          id: adminUser.id, 
-          username: adminUser.username, 
-          passwordStart: adminUser.password.substring(0, 10) + '...', 
-          isAdmin: adminUser.isAdmin 
-        });
-        
-        // Si besoin, réinitialiser le mot de passe admin (décommenter cette section si nécessaire)
-        const hashedPassword = await hashPassword("admin123");
-        const updatedAdmin = await storage.updateUser(adminUser.id, {
-          password: hashedPassword
-        });
-        
-        return res.json({ 
-          message: "L'utilisateur admin existe déjà et son mot de passe a été réinitialisé", 
-          admin: updatedAdmin || adminUser 
-        });
-      }
-      
-      // Si l'admin n'existe pas, le créer
-      const hashedPassword = await hashPassword("admin123");
-      const newAdmin = await storage.createUser({
-        username: "admin",
-        password: hashedPassword,
-        isAdmin: true
-      });
-      
-      console.log("Nouvel admin créé:", { 
-        id: newAdmin.id, 
-        username: newAdmin.username, 
-        passwordStart: newAdmin.password.substring(0, 10) + '...', 
-        isAdmin: newAdmin.isAdmin 
-      });
-      
-      res.json({ message: "Utilisateur admin créé avec succès", admin: newAdmin });
-    } catch (error) {
-      console.error("Erreur lors de la création de l'admin:", error);
-      res.status(500).json({ message: "Erreur lors de la création de l'admin" });
-    }
-  });
-  
+
   // API Routes - all prefixed with /api
   
   // Events API
@@ -115,7 +74,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  app.post("/api/events", async (req: Request, res: Response) => {
+  app.post("/api/events", requireAdmin, async (req: Request, res: Response) => {
     try {
       const validatedData = insertEventSchema.parse(req.body);
       const newEvent = await storage.createEvent(validatedData);
@@ -128,21 +87,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Failed to create event" });
     }
   });
-  
-  app.put("/api/events/:id", async (req: Request, res: Response) => {
+
+  app.put("/api/events/:id", requireAdmin, async (req: Request, res: Response) => {
     try {
       const id = parseInt(req.params.id);
       if (isNaN(id)) {
         return res.status(400).json({ message: "Invalid event ID" });
       }
-      
+
       const validatedData = insertEventSchema.partial().parse(req.body);
       const updatedEvent = await storage.updateEvent(id, validatedData);
-      
+
       if (!updatedEvent) {
         return res.status(404).json({ message: "Event not found" });
       }
-      
+
       res.json(updatedEvent);
     } catch (error) {
       if (error instanceof ZodError) {
@@ -152,25 +111,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Failed to update event" });
     }
   });
-  
-  app.delete("/api/events/:id", async (req: Request, res: Response) => {
+
+  app.delete("/api/events/:id", requireAdmin, async (req: Request, res: Response) => {
     try {
       const id = parseInt(req.params.id);
       if (isNaN(id)) {
         return res.status(400).json({ message: "Invalid event ID" });
       }
-      
+
       const success = await storage.deleteEvent(id);
       if (!success) {
         return res.status(404).json({ message: "Event not found" });
       }
-      
+
       res.status(204).end();
     } catch (error) {
       res.status(500).json({ message: "Failed to delete event" });
     }
   });
-  
+
   // Special Events API (for schedule display)
   app.get("/api/events/special/all", async (_req: Request, res: Response) => {
     try {
@@ -180,21 +139,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Failed to fetch special events" });
     }
   });
-  
-  app.post("/api/events/special", async (req: Request, res: Response) => {
-    try {
-      const validatedData = insertSpecialEventSchema.parse(req.body);
-      const newEvent = await storage.createSpecialEvent(validatedData);
-      res.status(201).json(newEvent);
-    } catch (error) {
-      if (error instanceof ZodError) {
-        const validationError = fromZodError(error);
-        return res.status(400).json({ message: validationError.message });
-      }
-      res.status(500).json({ message: "Failed to create special event" });
-    }
-  });
-  
+
   // Photos API
   app.get("/api/photos", async (_req: Request, res: Response) => {
     try {
@@ -204,8 +149,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Failed to fetch photos" });
     }
   });
-  
-  app.post("/api/photos", async (req: Request, res: Response) => {
+
+  app.post("/api/photos", requireAdmin, async (req: Request, res: Response) => {
     try {
       const validatedData = insertPhotoSchema.parse(req.body);
       const newPhoto = await storage.createPhoto(validatedData);
@@ -218,54 +163,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Failed to create photo" });
     }
   });
-  
-  // For a real application, we would handle file uploads to storage service
-  // Here we'll simulate by accepting photo URLs
-  app.post("/api/photos/upload", upload.array("photos", 10), async (req: Request, res: Response) => {
+
+  app.post("/api/photos/upload", requireAdmin, upload.array("photos", 10), async (req: Request, res: Response) => {
     try {
-      // In a real app, we would process the uploaded files here
-      // For now, we'll just simulate by creating a photo with a URL
       if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
         return res.status(400).json({ message: "No files uploaded" });
       }
-      
-      // In a real implementation, we would upload files to a storage service
-      // and get back URLs. For simplicity, we're using mock URLs here.
+
       const newPhotos = [];
-      
-      for (let i = 0; i < req.files.length; i++) {
-        const file = req.files[i];
-        // Create a simulated URL - in a real app this would be a real URL from a storage service
-        const photoUrl = `https://example.com/uploads/${file.originalname}`;
-        
+      for (const file of req.files) {
+        const publicUrl = await uploadPhotoToBucket(file.buffer, file.originalname, file.mimetype);
         const newPhoto = await storage.createPhoto({
           title: file.originalname,
-          url: photoUrl
+          url: publicUrl,
         });
-        
         newPhotos.push(newPhoto);
       }
-      
+
       res.status(201).json(newPhotos);
     } catch (error) {
-      res.status(500).json({ message: "Failed to upload photos" });
+      console.error("[upload] failed:", error);
+      const message = error instanceof Error ? error.message : "Failed to upload photos";
+      res.status(500).json({ message });
     }
   });
-  
-  app.put("/api/photos/:id", async (req: Request, res: Response) => {
+
+  app.put("/api/photos/:id", requireAdmin, async (req: Request, res: Response) => {
     try {
       const id = parseInt(req.params.id);
       if (isNaN(id)) {
         return res.status(400).json({ message: "Invalid photo ID" });
       }
-      
+
       const validatedData = insertPhotoSchema.parse(req.body);
       const updatedPhoto = await storage.updatePhoto(id, validatedData);
-      
+
       if (!updatedPhoto) {
         return res.status(404).json({ message: "Photo not found" });
       }
-      
+
       res.json(updatedPhoto);
     } catch (error) {
       if (error instanceof ZodError) {
@@ -276,18 +212,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/photos/:id", async (req: Request, res: Response) => {
+  app.delete("/api/photos/:id", requireAdmin, async (req: Request, res: Response) => {
     try {
       const id = parseInt(req.params.id);
       if (isNaN(id)) {
         return res.status(400).json({ message: "Invalid photo ID" });
       }
-      
+
       const success = await storage.deletePhoto(id);
       if (!success) {
         return res.status(404).json({ message: "Photo not found" });
       }
-      
+
       res.status(204).end();
     } catch (error) {
       res.status(500).json({ message: "Failed to delete photo" });
@@ -350,21 +286,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Failed to subscribe" });
     }
   });
-
-  // Routes protégées d'administration
-  // Middleware pour vérifier si l'utilisateur est admin
-  const requireAdmin = (req: Request, res: Response, next: NextFunction) => {
-    if (!req.isAuthenticated()) {
-      return res.status(401).json({ message: "Non authentifié" });
-    }
-    
-    // @ts-ignore - Problème de typage avec isAdmin
-    if (!req.user.isAdmin) {
-      return res.status(403).json({ message: "Accès refusé" });
-    }
-    
-    next();
-  };
 
   // API pour la gestion d'événements (admin uniquement)
   app.get("/api/admin/events", requireAdmin, async (_req: Request, res: Response) => {
@@ -569,8 +490,4 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Erreur serveur lors de la mise à jour des identifiants" });
     }
   });
-
-  const httpServer = createServer(app);
-
-  return httpServer;
 }

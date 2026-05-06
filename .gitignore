@@ -4,3 +4,10 @@ dist
 server/public
 vite.config.ts.*
 *.tar.gz
+
+# Local env / secrets
+.env
+.env.local
+.env.*.local
+cookies.txt
+*.pem

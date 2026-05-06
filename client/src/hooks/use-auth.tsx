@@ -1,11 +1,11 @@
-import { createContext, ReactNode, useContext, useEffect } from "react";
+import { createContext, ReactNode, useContext } from "react";
 import {
   useQuery,
   useMutation,
   UseMutationResult,
 } from "@tanstack/react-query";
 import { User } from "@shared/schema";
-import { getQueryFn, apiRequest, queryClient } from "../lib/queryClient";
+import { apiRequest, queryClient } from "../lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
 type AuthContextType = {
@@ -14,16 +14,9 @@ type AuthContextType = {
   error: Error | null;
   loginMutation: UseMutationResult<User, Error, LoginData>;
   logoutMutation: UseMutationResult<void, Error, void>;
-  registerMutation: UseMutationResult<User, Error, RegisterData>;
-  checkSession: () => Promise<void>;
 };
 
 type LoginData = {
-  username: string;
-  password: string;
-};
-
-type RegisterData = {
   username: string;
   password: string;
 };
@@ -32,136 +25,52 @@ export const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const { toast } = useToast();
-  
-  // Notre requête principale pour récupérer les informations de l'utilisateur
+
   const {
     data: user,
     error,
     isLoading,
-    refetch,
   } = useQuery<User | null, Error>({
-    queryKey: ['/api/user'],
+    queryKey: ["/api/user"],
     queryFn: async () => {
-      try {
-        console.log("Vérification de la session utilisateur...");
-        
-        // Récupérer le sessionID de localStorage si disponible
-        const savedSessionId = localStorage.getItem('authSessionID');
-        console.log("Session ID stocké localement:", savedSessionId);
-        
-        const headers: HeadersInit = {
-          "Cache-Control": "no-cache", // Évite la mise en cache de la requête
-        };
-        
-        // Si un sessionID est stocké localement, l'ajouter aux headers
-        if (savedSessionId) {
-          headers["Cookie"] = `auth.sid=${savedSessionId}`;
-        }
-        
-        // Préparer l'URL avec le sessionID en paramètre si disponible
-        let url = "/api/user";
-        if (savedSessionId) {
-          url = `/api/user?sessionId=${encodeURIComponent(savedSessionId)}`;
-        }
-        
-        const res = await fetch(url, {
-          method: "GET",
-          credentials: "include", // Important pour envoyer les cookies
-          headers,
-        });
-        
-        if (res.status === 401) {
-          console.log("Utilisateur non authentifié");
-          return null;
-        }
-        
-        if (!res.ok) {
-          throw new Error(`Erreur réseau: ${res.status}`);
-        }
-        
-        const userData = await res.json();
-        console.log("Session utilisateur récupérée avec succès:", userData);
-        return userData;
-      } catch (err) {
-        console.error("Erreur lors de la récupération de la session:", err);
-        return null;
-      }
+      const res = await fetch("/api/user", {
+        method: "GET",
+        credentials: "include",
+        headers: { "Cache-Control": "no-cache" },
+      });
+      if (res.status === 401) return null;
+      if (!res.ok) throw new Error(`Erreur réseau: ${res.status}`);
+      return (await res.json()) as User;
     },
-    staleTime: 0, // Toujours considérer les données comme périmées
-    retry: false, // Ne pas réessayer en cas d'échec
-    refetchOnWindowFocus: true, // Actualiser quand l'utilisateur revient sur la page
+    staleTime: 60_000,
+    retry: false,
+    refetchOnWindowFocus: true,
   });
-  
-  // Fonction pour vérifier l'état de la session
-  const checkSession = async () => {
-    console.log("Vérification de la session en cours...");
-    
-    // Vérifier s'il existe un sessionID dans le localStorage
-    const savedSessionId = localStorage.getItem('authSessionID');
-    if (savedSessionId) {
-      console.log("Session ID trouvé dans le stockage local:", savedSessionId);
-      // Mettre à jour le cookie manuellement
-      document.cookie = `auth.sid=${savedSessionId}; path=/; max-age=86400; SameSite=Lax`;
-    }
-    
-    await refetch();
-  };
 
-  // Mutation pour la connexion
   const loginMutation = useMutation({
     mutationFn: async (credentials: LoginData) => {
-      console.log("Tentative de connexion avec:", credentials.username);
-      try {
-        // Utilisation de fetch directement pour avoir plus de contrôle
-        const res = await fetch("/api/login", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(credentials),
-          credentials: "include", // Crucial pour stocker les cookies
-        });
-        
-        if (!res.ok) {
-          const errorText = await res.text();
-          console.error(`Erreur login status ${res.status}:`, errorText);
-          throw new Error(`${res.status}: ${errorText || res.statusText}`);
-        }
-        
-        const userData = await res.json();
-        console.log("Login réussi, données reçues:", userData);
-        
-        // Si le serveur a renvoyé un sessionID, l'enregistrer dans le stockage local
-        if (userData.sessionID) {
-          console.log("ID de session reçu du serveur:", userData.sessionID);
-          localStorage.setItem('authSessionID', userData.sessionID);
-          
-          // Mettre un cookie manuellement (solution alternative)
-          document.cookie = `auth.sid=${userData.sessionID}; path=/; max-age=86400; SameSite=Lax`;
-        }
-        
-        return userData;
-      } catch (err) {
-        console.error("Exception lors de la connexion:", err);
-        throw err;
+      const res = await fetch("/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(credentials),
+        credentials: "include",
+      });
+
+      if (!res.ok) {
+        const errorText = await res.text();
+        throw new Error(`${res.status}: ${errorText || res.statusText}`);
       }
+
+      return (await res.json()) as User;
     },
-    onSuccess: async (user: User) => {
-      console.log("Login mutation succès:", user);
-      // Supprimer le sessionID de l'objet utilisateur avant de le mettre en cache
-      const { sessionID, ...userWithoutSession } = user as any;
-      
-      // Mettre à jour le cache avec les données utilisateur
-      queryClient.setQueryData(['/api/user'], userWithoutSession);
-      
-      // Force une vérification de la session après la connexion
-      await checkSession();
-      
+    onSuccess: (loggedInUser: User) => {
+      queryClient.setQueryData(["/api/user"], loggedInUser);
       toast({
         title: "Connexion réussie",
         description: "Vous êtes maintenant connecté.",
       });
     },
-    onError: (error: Error) => {
-      console.error("Login mutation erreur:", error);
+    onError: () => {
       toast({
         title: "Échec de la connexion",
         description: "Nom d'utilisateur ou mot de passe incorrect.",
@@ -170,41 +79,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     },
   });
 
-  // Mutation pour l'inscription
-  const registerMutation = useMutation({
-    mutationFn: async (credentials: RegisterData) => {
-      const res = await apiRequest("POST", "/api/register", credentials);
-      return await res.json();
-    },
-    onSuccess: (user: User) => {
-      queryClient.setQueryData(['/api/user'], user);
-      toast({
-        title: "Inscription réussie",
-        description: "Votre compte a été créé avec succès.",
-      });
-    },
-    onError: (error: Error) => {
-      toast({
-        title: "Échec de l'inscription",
-        description: "Impossible de créer votre compte. Veuillez réessayer.",
-        variant: "destructive",
-      });
-    },
-  });
-
-  // Mutation pour la déconnexion
   const logoutMutation = useMutation({
     mutationFn: async () => {
       await apiRequest("POST", "/api/logout");
     },
     onSuccess: () => {
-      queryClient.setQueryData(['/api/user'], null);
+      queryClient.setQueryData(["/api/user"], null);
       toast({
         title: "Déconnexion réussie",
         description: "Vous avez été déconnecté avec succès.",
       });
     },
-    onError: (error: Error) => {
+    onError: () => {
       toast({
         title: "Échec de la déconnexion",
         description: "Une erreur s'est produite lors de la déconnexion.",
@@ -212,11 +98,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
     },
   });
-  
-  // Vérifier la session au chargement initial
-  useEffect(() => {
-    checkSession();
-  }, []);
 
   return (
     <AuthContext.Provider
@@ -226,8 +107,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         error,
         loginMutation,
         logoutMutation,
-        registerMutation,
-        checkSession,
       }}
     >
       {children}

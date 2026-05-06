@@ -8,12 +8,11 @@ import { queryClient } from "./lib/queryClient";
 import { AuthProvider } from "./hooks/use-auth";
 import { Toaster } from "@/components/ui/toaster";
 
-// Indique que nous voulons envoyer les cookies avec chaque requête
+// Send session cookies with every fetch by default.
 const originalFetch = window.fetch;
-window.fetch = function(input, init) {
-  init = init || {};
-  init.credentials = init.credentials || 'include';
-  console.log('Fetch intercepted:', input, 'with credentials mode:', init.credentials);
+window.fetch = function (input, init) {
+  init = init ?? {};
+  init.credentials = init.credentials ?? "include";
   return originalFetch(input, init);
 };
 

@@ -12,47 +12,26 @@ const AdminLogin = () => {
   const { t } = useTranslation();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const { loginMutation, user, isLoading, checkSession } = useAuth();
+  const { loginMutation, user } = useAuth();
   const { toast } = useToast();
   const [, setLocation] = useLocation();
 
-  // Vérifie l'état de l'authentification au chargement
-  useEffect(() => {
-    // Vérifie explicitement la session pour s'assurer que l'état est à jour
-    const verifySession = async () => {
-      await checkSession();
-    };
-
-    verifySession();
-  }, []);
-
-  // Si l'utilisateur est déjà connecté, rediriger vers la page admin
   useEffect(() => {
     if (user) {
-      console.log("Utilisateur authentifié détecté dans AdminLogin, redirection vers /admin");
       setLocation("/admin");
     }
   }, [user, setLocation]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Tentative de connexion depuis l'interface admin avec:", username);
     try {
-      const result = await loginMutation.mutateAsync({ username, password });
-      console.log("Login réussi depuis AdminLogin, résultat:", result);
-      
-      // Force la vérification de la session après la connexion
-      await checkSession();
-      
+      await loginMutation.mutateAsync({ username, password });
       toast({
         title: t("Login successful"),
         description: t("You are now logged in as admin"),
       });
-      
-      // Redirection immédiate vers la page admin
       setLocation("/admin");
-    } catch (error) {
-      console.error("Login error from AdminLogin:", error);
+    } catch {
       toast({
         title: t("Login failed"),
         description: t("Invalid username or password"),
@@ -90,10 +69,6 @@ const AdminLogin = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
-            </div>
-            {/* Débogage - Afficher l'état d'authentification actuel */}
-            <div className="text-xs text-muted-foreground">
-              Status: {isLoading ? "Chargement..." : user ? "Connecté" : "Non connecté"}
             </div>
           </CardContent>
           <CardFooter>
