@@ -5,7 +5,7 @@ import {
   contactMessages, ContactMessage, InsertContactMessage,
   specialEvents, SpecialEvent, InsertSpecialEvent,
   subscribers, Subscriber, InsertSubscriber,
-} from "@shared/schema";
+} from "../shared/schema.js";
 import { db, pool } from "./db.js";
 import { eq } from "drizzle-orm";
 import session from "express-session";
