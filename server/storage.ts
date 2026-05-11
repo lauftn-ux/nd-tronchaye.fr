@@ -296,7 +296,7 @@ export async function seedSampleContentIfEmpty(): Promise<void> {
 
   const samplePhotos = [
     { title: "Sanctuaire Notre Dame de la Tronchaye", url: "/IMG_9328.webp" },
-    { title: "Statue de la Vierge", url: "/IMG_9300.webp" },
+    { title: "Statue de la Vierge", url: "/IMG_9301.webp" },
     { title: "Autel principal", url: "/IMG_9298.webp" },
     { title: "Vitraux colorés", url: "/IMG_9309.webp" },
     { title: "Architecture intérieure", url: "/IMG_9303.webp" },

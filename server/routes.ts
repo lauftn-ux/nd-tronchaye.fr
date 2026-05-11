@@ -7,6 +7,7 @@ import { ZodError } from "zod";
 import { fromZodError } from "zod-validation-error";
 import { sendContactFormEmail } from "./emailService.js";
 import { uploadPhotoToBucket } from "./supabaseStorage.js";
+import { pool } from "./db.js";
 
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -488,6 +489,23 @@ export async function registerRoutes(app: Express): Promise<void> {
       res.json({ message: "Identifiants mis à jour avec succès" });
     } catch (error) {
       res.status(500).json({ message: "Erreur serveur lors de la mise à jour des identifiants" });
+    }
+  });
+
+  // Pinged once a day by Vercel Cron (see vercel.json crons[]) to prevent
+  // Supabase Free from pausing the database after 7 days of inactivity.
+  app.get("/api/cron/keep-alive", async (req: Request, res: Response) => {
+    try {
+      const r = await pool.query("SELECT NOW() AS now, COUNT(*)::int AS events FROM events");
+      res.json({
+        ok: true,
+        cron: req.headers["x-vercel-cron"] === "1",
+        now: r.rows[0].now,
+        events: r.rows[0].events,
+      });
+    } catch (err) {
+      console.error("[cron:keep-alive] failed:", err);
+      res.status(500).json({ ok: false, error: err instanceof Error ? err.message : String(err) });
     }
   });
 }
