@@ -1,5 +1,5 @@
-import { storage } from "./storage";
-import { hashPassword } from "./auth";
+import { storage } from "./storage.js";
+import { hashPassword } from "./auth.js";
 
 // Creates the initial admin account from environment variables on first startup.
 // Set INITIAL_ADMIN_USERNAME and INITIAL_ADMIN_PASSWORD before the first deploy,

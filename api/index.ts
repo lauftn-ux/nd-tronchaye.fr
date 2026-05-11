@@ -1,5 +1,5 @@
 import type { IncomingMessage, ServerResponse } from "http";
-import { getApp } from "../server/app";
+import { getApp } from "../server/app.js";
 
 export const config = {
   // Use the Node.js runtime (not Edge) — Express, pg and Passport are not compatible with Edge.

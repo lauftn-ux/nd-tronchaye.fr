@@ -1,7 +1,7 @@
 import { createServer } from "http";
 import express from "express";
-import { getApp } from "./app";
-import { setupVite, serveStatic, log } from "./vite";
+import { getApp } from "./app.js";
+import { setupVite, serveStatic, log } from "./vite.js";
 
 const port = Number(process.env.PORT ?? 5000);
 

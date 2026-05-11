@@ -1,7 +1,7 @@
 import express, { type Request, Response, NextFunction } from "express";
-import { registerRoutes } from "./routes";
-import { ensureInitialAdmin } from "./bootstrap";
-import { seedSampleContentIfEmpty } from "./storage";
+import { registerRoutes } from "./routes.js";
+import { ensureInitialAdmin } from "./bootstrap.js";
+import { seedSampleContentIfEmpty } from "./storage.js";
 
 const SENSITIVE_LOG_PATHS = ["/api/login", "/api/user", "/api/admin"];
 
